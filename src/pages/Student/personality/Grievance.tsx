@@ -1,17 +1,17 @@
-import { useState } from 'react'
-import { useAppStore } from '../../../store/useAppStore'
+import { useState } from "react";
+import { useAppStore } from "../../../store/useAppStore";
 
 export default function Grievance() {
-  const [text, setText] = useState('')
-  const submit = useAppStore(s => s.grievances.submit)
-  const list = useAppStore(s => s.grievances.all)
+  const [text, setText] = useState("");
+  const submit = useAppStore(s => s.grievances.submit);
+  const list = useAppStore(s => s.grievances.all);
 
   const onSubmit = () => {
-    if (!text.trim()) return
-    submit(text.trim())
-    setText('')
-    alert('Submitted. Teacher and parent notified (mock).')
-  }
+    if (!text.trim()) return;
+    submit(text.trim());
+    setText("");
+    alert("Submitted. Teacher and parent notified (mock).");
+  };
 
   return (
     <div className="mx-auto max-w-[900px] p-4 space-y-4">
@@ -20,7 +20,7 @@ export default function Grievance() {
         className="w-full h-32 p-3 border rounded-2xl"
         placeholder="Share your concern…"
         value={text}
-        onChange={(e) => setText(e.target.value)}
+        onChange={e => setText(e.target.value)}
       />
       <button className="px-4 py-2 rounded-xl bg-slate-800 text-white" onClick={onSubmit}>
         Submit Grievance
@@ -34,7 +34,7 @@ export default function Grievance() {
             <div key={g.id} className="border rounded-2xl p-3 bg-white">
               <div className="text-xs text-slate-500">
                 {new Date(g.createdAt).toLocaleString()}
-                {' · '}Status: {g.status}
+                {" · "}Status: {g.status}
               </div>
               <div className="mt-1">{g.text}</div>
             </div>
@@ -42,5 +42,5 @@ export default function Grievance() {
         </div>
       </div>
     </div>
-  )
+  );
 }

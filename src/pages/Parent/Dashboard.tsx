@@ -96,13 +96,13 @@ function WeeklyPerformance() {
         {/* Controls */}
         <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
           <div className="flex items-center gap-2">
-            <IconBtn onClick={() => setMonday((d) => addDays(d, -7))} label="Previous week">
+            <IconBtn onClick={() => setMonday(d => addDays(d, -7))} label="Previous week">
               ‹
             </IconBtn>
             <div className="text-sm font-medium text-slate-700">
               Week of <span className="font-semibold">{fmtRange(monday)}</span>
             </div>
-            <IconBtn onClick={() => setMonday((d) => addDays(d, +7))} label="Next week">
+            <IconBtn onClick={() => setMonday(d => addDays(d, +7))} label="Next week">
               ›
             </IconBtn>
           </div>
@@ -113,7 +113,7 @@ function WeeklyPerformance() {
               type="date"
               className="rounded-xl border border-slate-200 px-3 py-1.5"
               value={monday.toISOString().slice(0, 10)}
-              onChange={(e) => jumpTo(e.target.value)}
+              onChange={e => jumpTo(e.target.value)}
             />
           </label>
         </div>
@@ -179,7 +179,7 @@ export default function ParentDashboard() {
         <RightPanel />
 
         {/* Bottom full-width card */}
-        <Card className="lg:col-span-2" >
+        <Card className="lg:col-span-2">
           <ParentAdminUtility />
         </Card>
       </div>

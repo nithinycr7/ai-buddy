@@ -1,20 +1,21 @@
+import Card from "../../components/UI/Card";
 
-import Card from '../../components/UI/Card'
-
-function Left(){
+function Left() {
   return (
     <div className="space-y-4">
       <h2 className="text-2xl header-hand">Feedback Categories</h2>
       <div className="space-y-3">
-        {['Pace','Clarity','Engagement'].map(x => (
-          <div key={x} className="sticky">{x}</div>
+        {["Pace", "Clarity", "Engagement"].map(x => (
+          <div key={x} className="sticky">
+            {x}
+          </div>
         ))}
       </div>
     </div>
-  )
+  );
 }
 
-function Right(){
+function Right() {
   return (
     <div className="space-y-4">
       <h2 className="text-2xl header-hand">Drill-down</h2>
@@ -26,7 +27,7 @@ function Right(){
         </ul>
       </Card>
     </div>
-  )
+  );
 }
 
-export default { Left, Right }
+export default { Left, Right };

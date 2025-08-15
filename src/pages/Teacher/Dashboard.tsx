@@ -1,22 +1,22 @@
 // src/pages/Teacher/Dashboard.tsx
-import { useMemo, useState } from 'react'
-import { DatePicker } from '../../components/Inputs/DatePicker' // if you don't have one, swap for <input type="date" />
-import Card from '../../components/UI/Card'
-import { useAppStore } from '../../store/useAppStore'
-import { ChevronDownIcon } from '@heroicons/react/20/solid'
+import { useMemo, useState } from "react";
+import { DatePicker } from "../../components/Inputs/DatePicker"; // if you don't have one, swap for <input type="date" />
+import Card from "../../components/UI/Card";
+import { useAppStore } from "../../store/useAppStore";
+import { ChevronDownIcon } from "@heroicons/react/20/solid";
 
 type LessonPlanInput = {
-  subject: string
-  className: string
-  section: string
-  topic: string
-  topicOther?: string
-}
+  subject: string;
+  className: string;
+  section: string;
+  topic: string;
+  topicOther?: string;
+};
 
 function Left() {
-  const todayISO = new Date().toISOString().slice(0, 10)
-  const [dateISO, setDateISO] = useState<string>(todayISO)
-  const [selectedRow, setSelectedRow] = useState<number | null>(null)
+  const todayISO = new Date().toISOString().slice(0, 10);
+  const [dateISO, setDateISO] = useState<string>(todayISO);
+  const [selectedRow, setSelectedRow] = useState<number | null>(null);
 
   // ---- Zustand selectors (all optional-friendly) ----
   const {
@@ -25,7 +25,7 @@ function Left() {
     timetable, // optional object: { [dateISO]: Array<{id, period, subject, className, section}> }
     // meta
     subjects = [],
-    classesList  = [],
+    classesList = [],
     sections = [],
     topicsBySubject,
     // notes
@@ -36,67 +36,67 @@ function Left() {
     getTimetableForDate: (s as any).getTimetableForDate,
     timetable: (s as any).timetable,
     subjects: (s as any).subjects,
-    classesList : (s as any).classesList,
+    classesList: (s as any).classesList,
     sections: (s as any).sections,
     topicsBySubject: (s as any).topicsBySubject,
     getTeachingNotes: (s as any).getTeachingNotes,
     upsertLessonPlan: (s as any).upsertLessonPlan,
-  }))
+  }));
 
   // timetable rows for the chosen date – prefers selector, falls back to map
   const rows = useMemo(() => {
-    if (typeof getTimetableForDate === 'function') return getTimetableForDate(dateISO) || []
-    if (timetable && timetable[dateISO]) return timetable[dateISO]
-    return []
-  }, [dateISO, getTimetableForDate, timetable])
+    if (typeof getTimetableForDate === "function") return getTimetableForDate(dateISO) || [];
+    if (timetable && timetable[dateISO]) return timetable[dateISO];
+    return [];
+  }, [dateISO, getTimetableForDate, timetable]);
 
-  const selected = selectedRow != null ? rows[selectedRow] : null
+  const selected = selectedRow != null ? rows[selectedRow] : null;
 
   // controlled inputs for the “Day Timetable → bottom card”
   const [inputs, setInputs] = useState<LessonPlanInput>({
-    subject: '',
-    className: '',
-    section: '',
-    topic: '',
-    topicOther: '',
-  })
+    subject: "",
+    className: "",
+    section: "",
+    topic: "",
+    topicOther: "",
+  });
 
   // when a row is picked, prefill subject/class/section from that row
   function pickRow(i: number) {
-    setSelectedRow(i)
-    const r = rows[i]
-    if (!r) return
+    setSelectedRow(i);
+    const r = rows[i];
+    if (!r) return;
     setInputs(prev => ({
       ...prev,
       subject: r.subject || prev.subject,
       className: r.className || prev.className,
       section: r.section || prev.section,
-    }))
+    }));
   }
 
   // topic list from store for chosen subject
   const subjectTopics: string[] = useMemo(() => {
-    if (!inputs.subject) return []
-    if (typeof topicsBySubject === 'function') {
-      return topicsBySubject(inputs.subject) || []
+    if (!inputs.subject) return [];
+    if (typeof topicsBySubject === "function") {
+      return topicsBySubject(inputs.subject) || [];
     }
-    const dict = topicsBySubject as Record<string, string[]> | undefined
-    return dict?.[inputs.subject] || []
-  }, [inputs.subject, topicsBySubject])
+    const dict = topicsBySubject as Record<string, string[]> | undefined;
+    return dict?.[inputs.subject] || [];
+  }, [inputs.subject, topicsBySubject]);
 
-  const effectiveTopic = inputs.topic === 'Other' ? (inputs.topicOther || '').trim() : inputs.topic
+  const effectiveTopic = inputs.topic === "Other" ? (inputs.topicOther || "").trim() : inputs.topic;
 
   // notes from store (tips/examples/core concepts)
   const notes = useMemo(() => {
-    if (!inputs.subject || !effectiveTopic) return null
-    if (typeof getTeachingNotes === 'function') {
-      return getTeachingNotes(inputs.subject, effectiveTopic) // expected: { tips: string[], examples: string[], coreConcepts: string[] }
+    if (!inputs.subject || !effectiveTopic) return null;
+    if (typeof getTeachingNotes === "function") {
+      return getTeachingNotes(inputs.subject, effectiveTopic); // expected: { tips: string[], examples: string[], coreConcepts: string[] }
     }
-    return null
-  }, [inputs.subject, effectiveTopic, getTeachingNotes])
+    return null;
+  }, [inputs.subject, effectiveTopic, getTeachingNotes]);
 
   function saveLessonPlan() {
-    if (typeof upsertLessonPlan === 'function' && selected) {
+    if (typeof upsertLessonPlan === "function" && selected) {
       upsertLessonPlan({
         dateISO,
         periodId: selected.id,
@@ -104,7 +104,7 @@ function Left() {
         className: inputs.className,
         section: inputs.section,
         topic: effectiveTopic,
-      })
+      });
     }
   }
 
@@ -122,7 +122,9 @@ function Left() {
             value={dateISO}
             onChange={e => setDateISO(e.target.value)}
           />
-          <div className="text-sm text-slate-600">Showing timetable & notes for: <span className="font-medium">{dateISO}</span></div>
+          <div className="text-sm text-slate-600">
+            Showing timetable & notes for: <span className="font-medium">{dateISO}</span>
+          </div>
         </div>
       </Card>
 
@@ -137,7 +139,7 @@ function Left() {
                 key={r.id || i}
                 onClick={() => pickRow(i)}
                 className={`w-full text-left px-3 py-2 rounded-xl hover:bg-slate-50 ${
-                  selectedRow === i ? 'bg-slate-50 ring-1 ring-slate-200' : ''
+                  selectedRow === i ? "bg-slate-50 ring-1 ring-slate-200" : ""
                 }`}
               >
                 <div className="flex items-center justify-between">
@@ -145,7 +147,8 @@ function Left() {
                     Period {r.period ?? i + 1} — {r.subject}
                   </div>
                   <div className="text-sm text-slate-600">
-                    Class {r.className}{r.section ? `-${r.section}` : ''}
+                    Class {r.className}
+                    {r.section ? `-${r.section}` : ""}
                   </div>
                 </div>
               </button>
@@ -162,12 +165,16 @@ function Left() {
             <label className="block text-xs text-slate-600 mb-1">Subject</label>
             <select
               value={inputs.subject}
-              onChange={e => setInputs(p => ({ ...p, subject: e.target.value, topic: '', topicOther: '' }))}
+              onChange={e =>
+                setInputs(p => ({ ...p, subject: e.target.value, topic: "", topicOther: "" }))
+              }
               className="w-full rounded-xl border border-slate-200 px-3 py-2 bg-white"
             >
               <option value="">Select</option>
               {subjects?.map((s: string) => (
-                <option key={s} value={s}>{s}</option>
+                <option key={s} value={s}>
+                  {s}
+                </option>
               ))}
             </select>
           </div>
@@ -182,7 +189,9 @@ function Left() {
             >
               <option value="">Select</option>
               {classesList?.map((c: string) => (
-                <option key={c} value={c}>{c}</option>
+                <option key={c} value={c}>
+                  {c}
+                </option>
               ))}
             </select>
           </div>
@@ -197,7 +206,9 @@ function Left() {
             >
               <option value="">Select</option>
               {sections?.map((sec: string) => (
-                <option key={sec} value={sec}>{sec}</option>
+                <option key={sec} value={sec}>
+                  {sec}
+                </option>
               ))}
             </select>
           </div>
@@ -208,17 +219,19 @@ function Left() {
             <div className="flex gap-2">
               <select
                 value={inputs.topic}
-                onChange={e => setInputs(p => ({ ...p, topic: e.target.value, topicOther: '' }))}
+                onChange={e => setInputs(p => ({ ...p, topic: e.target.value, topicOther: "" }))}
                 className="flex-1 rounded-xl border border-slate-200 px-3 py-2 bg-white"
               >
                 <option value="">Select</option>
                 {subjectTopics?.map((t: string) => (
-                  <option key={t} value={t}>{t}</option>
+                  <option key={t} value={t}>
+                    {t}
+                  </option>
                 ))}
                 <option value="Other">Other…</option>
               </select>
             </div>
-            {inputs.topic === 'Other' && (
+            {inputs.topic === "Other" && (
               <input
                 placeholder="Enter custom topic"
                 value={inputs.topicOther}
@@ -238,73 +251,78 @@ function Left() {
           </button>
           {selected && (
             <div className="text-xs text-slate-600">
-              Saving for <span className="font-medium">{dateISO}</span>, Period {selected.period ?? (selectedRow! + 1)}
+              Saving for <span className="font-medium">{dateISO}</span>, Period{" "}
+              {selected.period ?? selectedRow! + 1}
             </div>
           )}
         </div>
 
         {/* Teaching notes */}
-       {inputs.subject && effectiveTopic && (
-  <Card title={`${inputs.subject} — ${effectiveTopic}`}>
-    {/* Core Concepts */}
-    <div className="space-y-3">
-      <div className="flex items-center justify-between">
-        <h3 className="text-base font-semibold">Core Concepts</h3>
-        {/* optional count */}
-        <span className="text-xs text-slate-500">
-          {notes?.coreConcepts?.length ?? 0} points
-        </span>
-      </div>
+        {inputs.subject && effectiveTopic && (
+          <Card title={`${inputs.subject} — ${effectiveTopic}`}>
+            {/* Core Concepts */}
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <h3 className="text-base font-semibold">Core Concepts</h3>
+                {/* optional count */}
+                <span className="text-xs text-slate-500">
+                  {notes?.coreConcepts?.length ?? 0} points
+                </span>
+              </div>
 
-      {/* scrollable list, clean bullets, comfy line-height */}
-      <ul className="list-disc pl-5 leading-6 text-[15px] text-slate-700 max-h-64 overflow-auto pr-2">
-        {notes?.coreConcepts?.length ? (
-          notes.coreConcepts.map((t: string, i: number) => <li key={i} className="mb-1.5">{t}</li>)
-        ) : (
-          <li className="text-slate-500">No core concepts available.</li>
+              {/* scrollable list, clean bullets, comfy line-height */}
+              <ul className="list-disc pl-5 leading-6 text-[15px] text-slate-700 max-h-64 overflow-auto pr-2">
+                {notes?.coreConcepts?.length ? (
+                  notes.coreConcepts.map((t: string, i: number) => (
+                    <li key={i} className="mb-1.5">
+                      {t}
+                    </li>
+                  ))
+                ) : (
+                  <li className="text-slate-500">No core concepts available.</li>
+                )}
+              </ul>
+
+              {/* Divider */}
+              <div className="h-px bg-slate-200 my-2" />
+
+              {/* Tips + Examples footer (2-cols on desktop, 1-col on mobile) */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div className="rounded-xl border border-slate-200 p-3 bg-slate-50/70">
+                  <div className="font-medium mb-1">Tips</div>
+                  <ul className="list-disc pl-5 text-sm leading-6">
+                    {notes?.tips?.length ? (
+                      notes.tips.map((t: string, i: number) => <li key={i}>{t}</li>)
+                    ) : (
+                      <li className="text-slate-500">No tips available.</li>
+                    )}
+                  </ul>
+                </div>
+
+                <div className="rounded-xl border border-slate-200 p-3 bg-slate-50/70">
+                  <div className="font-medium mb-1">Examples</div>
+                  <ul className="list-disc pl-5 text-sm leading-6">
+                    {notes?.examples?.length ? (
+                      notes.examples.map((t: string, i: number) => <li key={i}>{t}</li>)
+                    ) : (
+                      <li className="text-slate-500">No examples available.</li>
+                    )}
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </Card>
         )}
-      </ul>
-
-      {/* Divider */}
-      <div className="h-px bg-slate-200 my-2" />
-
-      {/* Tips + Examples footer (2-cols on desktop, 1-col on mobile) */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        <div className="rounded-xl border border-slate-200 p-3 bg-slate-50/70">
-          <div className="font-medium mb-1">Tips</div>
-          <ul className="list-disc pl-5 text-sm leading-6">
-            {notes?.tips?.length ? (
-              notes.tips.map((t: string, i: number) => <li key={i}>{t}</li>)
-            ) : (
-              <li className="text-slate-500">No tips available.</li>
-            )}
-          </ul>
-        </div>
-
-        <div className="rounded-xl border border-slate-200 p-3 bg-slate-50/70">
-          <div className="font-medium mb-1">Examples</div>
-          <ul className="list-disc pl-5 text-sm leading-6">
-            {notes?.examples?.length ? (
-              notes.examples.map((t: string, i: number) => <li key={i}>{t}</li>)
-            ) : (
-              <li className="text-slate-500">No examples available.</li>
-            )}
-          </ul>
-        </div>
-      </div>
-    </div>
-  </Card>
-)}
       </Card>
     </div>
-  )
+  );
 }
 
 function Right() {
-  const todayISO = new Date().toISOString().slice(0, 10)
-  const [dateISO, setDateISO] = useState<string>(todayISO)
-  const [className, setClassName] = useState<string>('')
-  const [section, setSection] = useState<string>('')
+  const todayISO = new Date().toISOString().slice(0, 10);
+  const [dateISO, setDateISO] = useState<string>(todayISO);
+  const [className, setClassName] = useState<string>("");
+  const [section, setSection] = useState<string>("");
 
   const {
     classesList = [],
@@ -314,7 +332,7 @@ function Right() {
     classesList: (s as any).classesList,
     sections: (s as any).sections,
     getEngagement: (s as any).getEngagement,
-  }))
+  }));
 
   // const engagement: number[] = useMemo(() => {
   //   if (typeof getEngagement === 'function') {
@@ -345,10 +363,17 @@ function Right() {
             <select
               className="w-full rounded-xl border border-slate-200 px-3 py-2 bg-white"
               value={className}
-              onChange={e => { setClassName(e.target.value); setSection('') }}
+              onChange={e => {
+                setClassName(e.target.value);
+                setSection("");
+              }}
             >
               <option value="">All Classes</option>
-              {classesList?.map((c: string) => <option key={c} value={c}>{c}</option>)}
+              {classesList?.map((c: string) => (
+                <option key={c} value={c}>
+                  {c}
+                </option>
+              ))}
             </select>
           </div>
           <div>
@@ -359,38 +384,40 @@ function Right() {
               onChange={e => setSection(e.target.value)}
               disabled={!className}
             >
-              <option value="">{className ? 'All Sections' : 'Select a class first'}</option>
-              {className && sections?.map((s: string) => <option key={s} value={s}>{s}</option>)}
+              <option value="">{className ? "All Sections" : "Select a class first"}</option>
+              {className &&
+                sections?.map((s: string) => (
+                  <option key={s} value={s}>
+                    {s}
+                  </option>
+                ))}
             </select>
           </div>
         </div>
       </Card>
 
-      
-
-<Card title="Engagement by Roll Number">
-  <div className="overflow-x-auto">
-    <table className="min-w-full text-sm border">
-      <thead>
-        <tr>
-          <th className="border px-2 py-1">Roll No</th>
-          <th className="border px-2 py-1">Progress (%)</th>
-        </tr>
-      </thead>
-      <tbody>
-        {engagement.map(s => (
-          <tr key={s.name}>
-            <td className="border px-2 py-1">{s.name}</td>
-            <td className="border px-2 py-1">{s.progress}</td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  </div>
-</Card>
-
+      <Card title="Engagement by Roll Number">
+        <div className="overflow-x-auto">
+          <table className="min-w-full text-sm border">
+            <thead>
+              <tr>
+                <th className="border px-2 py-1">Roll No</th>
+                <th className="border px-2 py-1">Progress (%)</th>
+              </tr>
+            </thead>
+            <tbody>
+              {engagement.map(s => (
+                <tr key={s.name}>
+                  <td className="border px-2 py-1">{s.name}</td>
+                  <td className="border px-2 py-1">{s.progress}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </Card>
     </div>
-  )
+  );
 }
 
-export default { Left, Right }
+export default { Left, Right };
