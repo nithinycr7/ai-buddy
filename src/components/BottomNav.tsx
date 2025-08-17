@@ -38,7 +38,7 @@ export default function BottomNav() {
             }
           >
             <span>{t.icon}</span>
-            <span className="header-hand-2">{t.label}</span>
+            <span className="">{t.label}</span>
           </NavLink>
         ))
       )}

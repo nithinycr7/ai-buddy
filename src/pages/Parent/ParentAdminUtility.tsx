@@ -24,7 +24,7 @@ export default function ParentAdminUtility() {
 
   return (
     <section className="space-y-3">
-      <h2 className="text-2xl header-hand">Administrative & Utility</h2>
+      <h2 className="text-2xl ">Administrative & Utility</h2>
 
       {/* Tabs */}
       <div className="inline-flex rounded-2xl border border-slate-200 bg-white p-1 shadow-soft">

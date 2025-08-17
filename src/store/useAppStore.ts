@@ -105,11 +105,13 @@ export type ClassCard = {
   icon: string;
   title: string;
   topic: string;
-  progress: number; // 0..1
+  progress: number;
   summary: string;
 };
 
 export type SubjectKey = "Biology" | "Math" | "Physics" | "Chemistry";
+
+export type StudentBadge = "Math Whiz" | "Science Explorer" | "History Buff" | "Language Lover";
 
 export type UserProfile = {
   name: string;
@@ -117,6 +119,7 @@ export type UserProfile = {
   section: string;
   className: string; // e.g., "10"
   schoolLogoUrl?: string;
+  badges?: StudentBadge[];
 };
 
 export type LeaderboardEntry = { name: string; score: number };
@@ -192,10 +195,6 @@ export type AppState = {
     className?: string;
     section?: string;
   }) => { rollNo: number; progress: number; name: string }[];
-
-  aiTip: string;
-  upcomingExams: Exam[];
-  getClassesFor: (dateISO: string) => ClassItem[];
 
   // New: Personality Development
   communication: {
@@ -544,36 +543,116 @@ export const useAppStore = create<AppState>((set, get) => ({
     section: "B",
     className: "10",
     schoolLogoUrl: "",
+    badges: ["Math Whiz", "Science Explorer", "History Buff", "Language Lover"],
   },
 
   // ----- Student
   classes: [
+    // Biology topics
     {
-      id: "bio",
+      id: "bio-photosynthesis",
       icon: "🌱",
       title: "Biology",
       topic: "Photosynthesis",
       progress: 0.65,
-      summary: "Plants convert light into energy using chlorophyll and CO₂.",
+      summary: "How leaves turn light into chemical energy (glucose).",
     },
     {
-      id: "math",
+      id: "bio-respiration",
+      icon: "🔥",
+      title: "Biology",
+      topic: "Respiration",
+      progress: 0.4,
+      summary: "Cellular respiration: glycolysis, Krebs cycle and oxidative phosphorylation.",
+    },
+    {
+      id: "bio-cells",
+      icon: "🧫",
+      title: "Biology",
+      topic: "Cells & Tissues",
+      progress: 0.55,
+      summary: "Structure & function of cells, types of tissues and basic histology.",
+    },
+    {
+      id: "bio-digestive",
+      icon: "🍽️",
+      title: "Biology",
+      topic: "Human Digestive System",
+      progress: 0.2,
+      summary: "Organs, enzymes and the journey of food through the digestive tract.",
+    },
+
+    // Math topics
+    {
+      id: "math-quadratics",
       icon: "➗",
       title: "Math",
-      topic: "Quadratics",
+      topic: "Quadratic Equations",
       progress: 0.35,
-      summary: "Parabolas, vertex form, and solving with factoring or formula.",
+      summary: "Solving ax²+bx+c=0, graphing parabolas and using the quadratic formula.",
     },
     {
-      id: "phy",
+      id: "math-linear",
+      icon: "📈",
+      title: "Math",
+      topic: "Linear Equations",
+      progress: 0.6,
+      summary: "Slope, intercepts and solving systems of linear equations.",
+    },
+    {
+      id: "math-parabolas",
+      icon: "🔺",
+      title: "Math",
+      topic: "Parabolas",
+      progress: 0.25,
+      summary: "Vertex form, axis of symmetry and transformations of parabolas.",
+    },
+    {
+      id: "math-polynomials",
+      icon: "🧮",
+      title: "Math",
+      topic: "Polynomials",
+      progress: 0.5,
+      summary: "Degree, factoring, roots and basic polynomial operations.",
+    },
+
+    // Physics topics
+    {
+      id: "phy-kinematics",
       icon: "🧲",
       title: "Physics",
       topic: "Kinematics",
       progress: 0.52,
-      summary: "Motion in 1D/2D, velocity, acceleration, and graphs.",
+      summary: "Displacement, velocity, acceleration and motion graphs.",
     },
     {
-      id: "his",
+      id: "phy-newton",
+      icon: "🧠",
+      title: "Physics",
+      topic: "Newton’s Laws",
+      progress: 0.45,
+      summary: "Laws of motion, forces, friction and free-body diagrams.",
+    },
+    {
+      id: "phy-energy",
+      icon: "⚡",
+      title: "Physics",
+      topic: "Work & Energy",
+      progress: 0.3,
+      summary: "Work, kinetic & potential energy, conservation and power.",
+    },
+    {
+      id: "phy-waves",
+      icon: "🌊",
+      title: "Physics",
+      topic: "Waves",
+      progress: 0.2,
+      summary: "Wave properties: amplitude, wavelength, frequency and simple wave equations.",
+    },
+
+    // A History sample (keep existing-like entry)
+    {
+      id: "his-ancient",
       icon: "📜",
       title: "History",
       topic: "Ancient Civilizations",
@@ -603,17 +682,17 @@ export const useAppStore = create<AppState>((set, get) => ({
 
   // schedule (ISO → class IDs)
   schedule: {
-    [new Date().toISOString().slice(0, 10)]: ["bio", "math", "phy"],
-    [new Date(Date.now() - 86400000).toISOString().slice(0, 10)]: ["his", "bio"],
-    "2025-08-01": ["math", "his"],
+    [new Date().toISOString().slice(0, 10)]: ["Biology", "Math", "Physics"],
+    [new Date(Date.now() - 86400000).toISOString().slice(0, 10)]: ["History", "Biology"],
+    "2025-08-01": ["Maths", "History"],
   },
 
   getClassesFor: (dateISO: string) => {
     const { classes, schedule } = get();
-    const ids = schedule[dateISO] ?? [];
-    if (ids.length === 0) return [];
-    const byId: Record<string, ClassCard> = Object.fromEntries(classes.map(c => [c.id, c]));
-    return ids.map(id => byId[id]).filter(Boolean);
+    const titles = schedule[dateISO] ?? [];
+    if (titles.length === 0) return [];
+    const byTitle: Record<string, ClassCard> = Object.fromEntries(classes.map(c => [c.title, c]));
+    return titles.map(id => byTitle[id]).filter(Boolean);
   },
 
   // ----- Teacher meta

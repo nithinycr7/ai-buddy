@@ -31,12 +31,6 @@ body {
 .notebook {
   background-size: 100% 24px, 24px 100%;
 }
-.header-hand {
-  font-family: var(--font-hand, "Gloria Hallelujah"), cursive;
-}
-.header-hand-2 {
-  font-family: var(--font-hand-2, "Shadows Into Light"), cursive;
-}
 
 .sticky {
   @apply bg-pastelYellow shadow-soft rounded-xl p-3;

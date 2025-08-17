@@ -21,7 +21,7 @@ export default function Quiz() {
 
   return (
     <div className="space-y-4 text-center">
-      <div className="header-hand text-2xl">
+      <div className=" text-2xl">
         Question {quiz.index} / {quiz.total}
       </div>
       <div className="text-xl font-semibold">{q.text}</div>

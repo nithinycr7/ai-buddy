@@ -68,7 +68,7 @@ That’s how photosynthesis became the leaf’s favorite daily adventure.`
 
   return (
     <div className="space-y-4">
-      <h2 className="text-2xl header-hand">Lecture Summary</h2>
+      <h2 className="text-2xl ">Lecture Summary</h2>
 
       <Card title="Class Summary">
         <div className="relative">
@@ -113,7 +113,7 @@ That’s how photosynthesis became the leaf’s favorite daily adventure.`
 function Right() {
   return (
     <div className="space-y-4">
-      <h2 className="text-2xl header-hand">Chat</h2>
+      <h2 className="text-2xl ">Chat</h2>
       <ChatPanel />
     </div>
   );

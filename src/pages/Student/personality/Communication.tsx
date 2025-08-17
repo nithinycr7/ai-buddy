@@ -20,7 +20,7 @@ export default function Communication() {
   return (
     <div className="mx-auto max-w-[900px] p-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl header-hand">Communication Skills</h1>
+        <h1 className="text-2xl ">Communication Skills</h1>
         <button className="px-3 py-1.5 rounded-lg border" onClick={reset}>
           Reset
         </button>

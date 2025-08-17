@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 export default function PersonalityHome() {
   return (
     <div className="mx-auto max-w-[900px] p-4">
-      <h1 className="text-2xl mb-4 header-hand">Personality Development</h1>
+      <h1 className="text-2xl mb-4 ">Personality Development</h1>
       <div className="grid sm:grid-cols-3 gap-4">
         <Link
           to="communication"

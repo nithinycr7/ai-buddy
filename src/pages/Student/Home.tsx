@@ -1,86 +1,113 @@
 import { useState } from "react";
 import Card from "../../components/UI/Card";
-import ProgressRing from "../../components/UI/ProgressRing";
 import StickyNote from "../../components/UI/StickyNote";
 import Leaderboard from "../../components/UI/Leaderboard";
 import { useAppStore } from "../../store/useAppStore";
 import { useNavigate } from "react-router-dom";
+import { cn } from "../../utils/cn";
+import LectureCard from "./components/LectureCard/LectureCard";
 
 function Left() {
   const todayISO = new Date().toISOString().slice(0, 10);
   const [date, setDate] = useState<string>(todayISO);
+  const [active, setActive] = useState<string>("revision");
 
   const getClassesFor = useAppStore(s => s.getClassesFor);
   const classesForDay = getClassesFor(date);
+  const subjects = useAppStore(s => s.subjects);
+  const navigate = useNavigate();
+
+  const tabs = [
+    { id: "revision", label: "Today's Revision" },
+    { id: "subjects", label: "Subjects" },
+  ];
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-end justify-between gap-3">
-        <h2 className="text-2xl header-hand">Today’s Page</h2>
-        {/* Date picker */}
-        <div className="text-sm">
-          <label htmlFor="class-date" className="mr-2 text-slate-600">
-            Pick a date
-          </label>
-          <input
-            id="class-date"
-            type="date"
-            value={date}
-            onChange={e => setDate(e.target.value)}
-            className="border rounded-xl px-3 py-1.5 bg-white"
-          />
-        </div>
-      </div>
-
-      <div className="space-y-3">
-        {classesForDay.length === 0 ? (
-          <Card>
-            <div className="text-sm text-slate-600">
-              No classes scheduled for <span className="font-semibold">{date}</span>.
+    <div>
+      <div className="grid grid-cols-2 mb-2">
+        {tabs.map(({ id, label }, index) => {
+          const isActive = active === id;
+          return (
+            <div
+              key={index}
+              className={cn(
+                "py-2 grid place-items-center border shadow-soft bg-white cursor-pointer",
+                isActive && "bg-pastelGreen border-emerald-300"
+              )}
+              onClick={() => setActive(id)}
+            >
+              {label}
             </div>
-          </Card>
-        ) : (
-          classesForDay.slice(0, 4).map(c => (
-            <Card key={c.id}>
-              <div className="flex items-center justify-between gap-3">
-                <div>
-                  <div className="text-lg">
-                    {c.icon} {c.title} — {c.topic}
-                  </div>
-                  <div className="text-sm text-slate-600 max-w-prose">{c.summary}</div>
-                  <div className="flex gap-2 mt-2">
-                    <a href="/student/replay" className="px-3 py-1.5 rounded-lg bg-pastelGreen">
-                      Revise
-                    </a>
-                    <a href="/student/quiz" className="px-3 py-1.5 rounded-lg bg-pastelYellow">
-                      Quiz
-                    </a>
-                  </div>
-                </div>
-                <div className="shrink-0">
-                  <ProgressRing value={c.progress} />
-                </div>
-              </div>
-            </Card>
-          ))
-        )}
+          );
+        })}
       </div>
-      {/* --- New: Bottom actions on home page --- */}
-      <div className="pt-2">
-        <div className="rounded-2xl border bg-white p-3">
-          <div className="grid sm:grid-cols-2 gap-3">
-            <a
-              href="/student/personality"
-              className="w-full text-center px-4 py-3 rounded-xl bg-indigo-600 text-white shadow-soft hover:bg-indigo-500"
-            >
-              Personality Development
-            </a>
-            <a
-              href="/student/assignments"
-              className="w-full text-center px-4 py-3 rounded-xl bg-emerald-600 text-white shadow-soft hover:bg-emerald-500"
-            >
-              Home Assignments
-            </a>
+      <div className="page space-y-4">
+        <div className="flex items-end justify-between gap-3">
+          <h2 className="text-2xl ">{active === "revision" ? "Today's Revision" : "Subjects"}</h2>
+          {active === "revision" && (
+            <div className="flex items-center gap-4 text-sm">
+              <label htmlFor="class-date" className="mr-2 text-slate-600">
+                Pick a date
+              </label>
+              <input
+                id="class-date"
+                type="date"
+                value={date}
+                onChange={e => setDate(e.target.value)}
+                className="border rounded-xl px-3 py-1.5 bg-white"
+              />
+            </div>
+          )}
+        </div>
+
+        {active === "revision" ? (
+          <>
+            <div className="space-y-3">
+              {classesForDay.length === 0 ? (
+                <Card>
+                  <div className="text-sm text-slate-600">
+                    No classes scheduled for <span className="font-semibold">{date}</span>.
+                  </div>
+                </Card>
+              ) : (
+                classesForDay.slice(0, 4).map(c => <LectureCard key={c.id} lectureData={c} />)
+              )}
+            </div>
+          </>
+        ) : (
+          <div className="space-y-3">
+            <div className="grid sm:grid-cols-2 gap-3">
+              {subjects.map(s => (
+                <Card key={s}>
+                  <button
+                    onClick={() => navigate(`/student/subject/${encodeURIComponent(s)}`)}
+                    className="w-full text-left flex items-center gap-3 px-3 py-3"
+                  >
+                    <div className="text-lg font-medium">{s}</div>
+                    <div className="ml-auto text-sm text-slate-500">Open</div>
+                  </button>
+                </Card>
+              ))}
+            </div>
+          </div>
+        )}
+        {/* --- Bottom actions --- */}
+        <div className="pt-2">
+          <div className="rounded-2xl border bg-white p-3">
+            <div className="grid sm:grid-cols-2 gap-3">
+              <a
+                href="/student/personality"
+                className="w-full text-center px-4 py-3 rounded-xl bg-indigo-600 text-white shadow-soft hover:bg-indigo-500"
+              >
+                Personality Development
+              </a>
+              <a
+                href="/student/assignments"
+                className="w-full text-center px-4 py-3 rounded-xl bg-emerald-600 text-white shadow-soft hover:bg-emerald-500"
+              >
+                Home Assignments
+              </a>
+            </div>
           </div>
         </div>
       </div>

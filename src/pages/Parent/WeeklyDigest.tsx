@@ -3,7 +3,7 @@ import Card from "../../components/UI/Card";
 function Left() {
   return (
     <div className="space-y-4">
-      <h2 className="text-2xl header-hand">Badges & Mastery</h2>
+      <h2 className="text-2xl ">Badges & Mastery</h2>
       <div className="grid grid-cols-3 gap-3">
         {["📘", "🧩", "🏅", "🔬", "🧠", "✍️"].map((b, i) => (
           <Card key={i} className="text-center text-3xl">
@@ -18,7 +18,7 @@ function Left() {
 function Right() {
   return (
     <div className="space-y-4">
-      <h2 className="text-2xl header-hand">At‑home Activities</h2>
+      <h2 className="text-2xl ">At‑home Activities</h2>
       <div className="grid md:grid-cols-2 gap-3">
         {[
           { icon: "📚", text: "Read 10 pages together" },

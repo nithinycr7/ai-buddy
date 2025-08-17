@@ -90,7 +90,7 @@ function WeeklyPerformance() {
 
   return (
     <section className="space-y-4">
-      <h2 className="text-2xl header-hand">Parent — Weekly Performance</h2>
+      <h2 className="text-2xl ">Parent — Weekly Performance</h2>
 
       <Card>
         {/* Controls */}
@@ -146,7 +146,7 @@ function WeeklyPerformance() {
 function RightPanel() {
   return (
     <section className="space-y-4">
-      <h2 className="text-2xl header-hand">Highlights & Support</h2>
+      <h2 className="text-2xl ">Highlights & Support</h2>
       <div className="grid md:grid-cols-2 gap-3">
         <Card title="Highlights">
           <ul className="list-disc pl-5 text-sm space-y-1">

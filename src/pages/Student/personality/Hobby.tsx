@@ -8,7 +8,7 @@ export default function Hobby() {
 
   return (
     <div className="mx-auto max-w-[1000px] p-4 space-y-4">
-      <h1 className="text-2xl header-hand">Hobby Development</h1>
+      <h1 className="text-2xl ">Hobby Development</h1>
 
       <div className="flex flex-wrap gap-2">
         {options.map(o => (

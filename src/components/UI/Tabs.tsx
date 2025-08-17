@@ -20,7 +20,7 @@ export default function Tabs({
             active === t.id ? "bg-pastelGreen border-emerald-300" : "bg-white hover:bg-slate-50"
           }`}
         >
-          <span className="header-hand-2">{t.label}</span>
+          <span className="">{t.label}</span>
         </button>
       ))}
     </div>

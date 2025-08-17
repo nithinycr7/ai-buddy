@@ -418,7 +418,7 @@ export default function Administration() {
   return (
     <div className="mx-auto max-w-[1200px] px-4 space-y-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl header-hand">Administration</h1>
+        <h1 className="text-2xl ">Administration</h1>
         <div className="inline-flex rounded-2xl border border-slate-200 bg-white p-1 shadow-soft">
           <button
             onClick={() => setTab("teacher")}

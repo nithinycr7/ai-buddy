@@ -15,7 +15,7 @@ export default function Grievance() {
 
   return (
     <div className="mx-auto max-w-[900px] p-4 space-y-4">
-      <h1 className="text-2xl header-hand">Grievance Redressal</h1>
+      <h1 className="text-2xl ">Grievance Redressal</h1>
       <textarea
         className="w-full h-32 p-3 border rounded-2xl"
         placeholder="Share your concern…"

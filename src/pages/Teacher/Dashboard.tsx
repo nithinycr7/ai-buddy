@@ -110,7 +110,7 @@ function Left() {
 
   return (
     <div className="space-y-4">
-      <h2 className="text-2xl header-hand">Teacher — Planner</h2>
+      <h2 className="text-2xl ">Teacher — Planner</h2>
 
       {/* Calendar + Date */}
       <Card title="Pick a date">
@@ -345,7 +345,7 @@ function Right() {
 
   return (
     <div className="space-y-4">
-      <h2 className="text-2xl header-hand">Class Revision and Quiz Engagement</h2>
+      <h2 className="text-2xl ">Class Revision and Quiz Engagement</h2>
 
       <Card title="Filters">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">

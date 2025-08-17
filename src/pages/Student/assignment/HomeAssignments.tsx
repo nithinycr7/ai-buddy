@@ -12,7 +12,7 @@ export default function HomeAssignments() {
   return (
     <div className="mx-auto max-w-[900px] p-4 space-y-4">
       <div className="flex items-end justify-between">
-        <h1 className="text-2xl header-hand">Home Assignments</h1>
+        <h1 className="text-2xl ">Home Assignments</h1>
         <div className="text-sm">
           <label className="mr-2 text-slate-600">Pick a date</label>
           <input

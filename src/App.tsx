@@ -24,6 +24,8 @@ import FeedbackInsights from "./pages/Teacher/FeedbackInsights";
 // Parent
 import ParentDashboard from "./pages/Parent/Dashboard";
 import WeeklyDigest from "./pages/Parent/WeeklyDigest";
+import DynamicShell from "./components/Layout/DynamicShell";
+import SubjectPage from "./pages/Student/Subject";
 
 export default function App() {
   return (
@@ -35,7 +37,7 @@ export default function App() {
           {/* Student */}
           <Route
             path="/"
-            element={<TwoPageShell left={<StudentHome.Left />} right={<StudentHome.Right />} />}
+            element={<DynamicShell left={<StudentHome.Left />} right={<StudentHome.Right />} />}
           />
           <Route
             path="/student/replay"
@@ -52,6 +54,10 @@ export default function App() {
           <Route
             path="/student/journal"
             element={<TwoPageShell left={<Journal.Left />} right={<Journal.Right />} />}
+          />
+          <Route
+            path="/student/subject/:subject"
+            element={<SingleCardShell children={<SubjectPage />} />}
           />
 
           {/* Teacher */}

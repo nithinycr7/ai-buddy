@@ -29,7 +29,7 @@ export default function AskAIChat() {
       </button>
       {open && (
         <div className="fixed bottom-28 right-4 md:right-6 w-80 bg-white rounded-2xl shadow-soft p-3 border">
-          <div className="header-hand mb-2">Sticky Chat</div>
+          <div className=" mb-2">Sticky Chat</div>
           <div className="h-56 overflow-auto space-y-2 mb-2">
             {messages.map((m, i) => (
               <div
