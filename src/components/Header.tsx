@@ -1,18 +1,22 @@
 // src/components/Header.tsx
-import { Fragment } from 'react'
-import { Menu, Transition } from '@headlessui/react'
-import { ChevronDownIcon } from '@heroicons/react/20/solid'
-import { useAppStore } from '../store/useAppStore'
+import { Fragment } from "react";
+import { Menu, Transition } from "@headlessui/react";
+import { ChevronDownIcon } from "@heroicons/react/20/solid";
+import { useAppStore } from "../store/useAppStore";
 
 export default function Header() {
-  const user = useAppStore(s => s.user)
+  const user = useAppStore(s => s.user);
   const initials =
-    user.name?.split(' ').map(p => p[0]).slice(0, 2).join('').toUpperCase() || 'U'
+    user.name
+      ?.split(" ")
+      .map(p => p[0])
+      .slice(0, 2)
+      .join("")
+      .toUpperCase() || "U";
 
   return (
     // OPAQUE white header (no yellow can show through)
     <header className="sticky1 top-0 z-40 bg-white shadow-sm border-b border-slate-200">
-
       <div className="border-b border-slate-200">
         {/* Use GRID with 3 equal columns so center is truly centered */}
         <div className="mx-auto max-w-[1400px] px-4 h-12 md:h-14 grid grid-cols-3 items-center">
@@ -64,9 +68,7 @@ export default function Header() {
                 leaveFrom="transform opacity-100 scale-100"
                 leaveTo="transform opacity-0 scale-95"
               >
-                <Menu.Items
-  className="absolute right-0 mt-2 w-56 origin-top-right rounded-2xl border border-slate-200 bg-white shadow-soft focus:outline-none z-[60]"
->
+                <Menu.Items className="absolute right-0 mt-2 w-56 origin-top-right rounded-2xl border border-slate-200 bg-white shadow-soft focus:outline-none z-[60]">
                   <div className="p-3">
                     <div className="flex items-center gap-2 mb-2">
                       {user.avatarUrl ? (
@@ -104,5 +106,5 @@ export default function Header() {
         </div>
       </div>
     </header>
-  )
+  );
 }

@@ -90,19 +90,19 @@ function WeeklyPerformance() {
 
   return (
     <section className="space-y-4">
-      <h2 className="text-2xl header-hand">Parent — Weekly Performance</h2>
+      <h2 className="text-2xl ">Parent — Weekly Performance</h2>
 
       <Card>
         {/* Controls */}
         <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
           <div className="flex items-center gap-2">
-            <IconBtn onClick={() => setMonday((d) => addDays(d, -7))} label="Previous week">
+            <IconBtn onClick={() => setMonday(d => addDays(d, -7))} label="Previous week">
               ‹
             </IconBtn>
             <div className="text-sm font-medium text-slate-700">
               Week of <span className="font-semibold">{fmtRange(monday)}</span>
             </div>
-            <IconBtn onClick={() => setMonday((d) => addDays(d, +7))} label="Next week">
+            <IconBtn onClick={() => setMonday(d => addDays(d, +7))} label="Next week">
               ›
             </IconBtn>
           </div>
@@ -113,7 +113,7 @@ function WeeklyPerformance() {
               type="date"
               className="rounded-xl border border-slate-200 px-3 py-1.5"
               value={monday.toISOString().slice(0, 10)}
-              onChange={(e) => jumpTo(e.target.value)}
+              onChange={e => jumpTo(e.target.value)}
             />
           </label>
         </div>
@@ -146,7 +146,7 @@ function WeeklyPerformance() {
 function RightPanel() {
   return (
     <section className="space-y-4">
-      <h2 className="text-2xl header-hand">Highlights & Support</h2>
+      <h2 className="text-2xl ">Highlights & Support</h2>
       <div className="grid md:grid-cols-2 gap-3">
         <Card title="Highlights">
           <ul className="list-disc pl-5 text-sm space-y-1">
@@ -179,7 +179,7 @@ export default function ParentDashboard() {
         <RightPanel />
 
         {/* Bottom full-width card */}
-        <Card className="lg:col-span-2" >
+        <Card className="lg:col-span-2">
           <ParentAdminUtility />
         </Card>
       </div>

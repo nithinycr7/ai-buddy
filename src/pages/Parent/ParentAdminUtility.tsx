@@ -14,7 +14,7 @@ type Payment = {
 type LeaveRequest = {
   id: string;
   from: string; // YYYY-MM-DD
-  to: string;   // YYYY-MM-DD
+  to: string; // YYYY-MM-DD
   reason: string;
   status: "Pending" | "Approved" | "Rejected";
 };
@@ -24,13 +24,19 @@ export default function ParentAdminUtility() {
 
   return (
     <section className="space-y-3">
-      <h2 className="text-2xl header-hand">Administrative & Utility</h2>
+      <h2 className="text-2xl ">Administrative & Utility</h2>
 
       {/* Tabs */}
       <div className="inline-flex rounded-2xl border border-slate-200 bg-white p-1 shadow-soft">
-        <TabBtn id="fees" active={tab==="fees"} onClick={()=>setTab("fees")}>Fee Payment & History</TabBtn>
-        <TabBtn id="leave" active={tab==="leave"} onClick={()=>setTab("leave")}>Leave Requests</TabBtn>
-        <TabBtn id="profile" active={tab==="profile"} onClick={()=>setTab("profile")}>Profile Management</TabBtn>
+        <TabBtn id="fees" active={tab === "fees"} onClick={() => setTab("fees")}>
+          Fee Payment & History
+        </TabBtn>
+        <TabBtn id="leave" active={tab === "leave"} onClick={() => setTab("leave")}>
+          Leave Requests
+        </TabBtn>
+        <TabBtn id="profile" active={tab === "profile"} onClick={() => setTab("profile")}>
+          Profile Management
+        </TabBtn>
       </div>
 
       {tab === "fees" && <FeesPanel />}
@@ -44,7 +50,7 @@ function TabBtn({
   id,
   active,
   onClick,
-  children
+  children,
 }: {
   id: string;
   active: boolean;
@@ -57,9 +63,7 @@ function TabBtn({
       onClick={onClick}
       className={
         "px-3 py-2 rounded-xl text-sm font-medium transition " +
-        (active
-          ? "bg-pastelBlue/20 border border-pastelBlue/40"
-          : "hover:bg-slate-50")
+        (active ? "bg-pastelBlue/20 border border-pastelBlue/40" : "hover:bg-slate-50")
       }
     >
       {children}
@@ -111,7 +115,7 @@ function FeesPanel() {
       status: "Paid",
       receiptUrl: "#",
     };
-    setHistory((h) => [newItem, ...h]);
+    setHistory(h => [newItem, ...h]);
     setMessage("Payment successful! Receipt generated.");
     setTimeout(() => setMessage(null), 4000);
   }
@@ -126,7 +130,7 @@ function FeesPanel() {
               <select
                 className="w-full rounded-xl border border-slate-200 px-3 py-2 bg-white"
                 value={form.term}
-                onChange={(e) => setForm({ ...form, term: e.target.value })}
+                onChange={e => setForm({ ...form, term: e.target.value })}
               >
                 <option>Term 1</option>
                 <option>Term 2</option>
@@ -140,9 +144,7 @@ function FeesPanel() {
                 type="number"
                 className="w-full rounded-xl border border-slate-200 px-3 py-2"
                 value={form.amount}
-                onChange={(e) =>
-                  setForm({ ...form, amount: Number(e.target.value) })
-                }
+                onChange={e => setForm({ ...form, amount: Number(e.target.value) })}
               />
             </label>
           </div>
@@ -150,7 +152,7 @@ function FeesPanel() {
           <label className="text-sm block">
             <span className="block text-slate-600 mb-1">Method</span>
             <div className="flex gap-2">
-              {(["UPI", "Card", "NetBanking", "Cash"] as const).map((m) => (
+              {(["UPI", "Card", "NetBanking", "Cash"] as const).map(m => (
                 <button
                   key={m}
                   type="button"
@@ -175,7 +177,7 @@ function FeesPanel() {
                 placeholder="yourname@bank"
                 className="w-full rounded-xl border border-slate-200 px-3 py-2"
                 value={form.upiId}
-                onChange={(e) => setForm({ ...form, upiId: e.target.value })}
+                onChange={e => setForm({ ...form, upiId: e.target.value })}
               />
             </label>
           )}
@@ -187,9 +189,7 @@ function FeesPanel() {
                 placeholder="1234"
                 className="w-full rounded-xl border border-slate-200 px-3 py-2"
                 value={form.cardLast4}
-                onChange={(e) =>
-                  setForm({ ...form, cardLast4: e.target.value.slice(0, 4) })
-                }
+                onChange={e => setForm({ ...form, cardLast4: e.target.value.slice(0, 4) })}
               />
             </label>
           )}
@@ -223,7 +223,7 @@ function FeesPanel() {
               </tr>
             </thead>
             <tbody>
-              {history.map((p) => (
+              {history.map(p => (
                 <tr key={p.id} className="border-t border-slate-100">
                   <td className="py-2 pr-3">{p.date}</td>
                   <td className="py-2 pr-3">{p.term}</td>
@@ -266,7 +266,13 @@ function FeesPanel() {
 
 function LeavePanel() {
   const [requests, setRequests] = useState<LeaveRequest[]>([
-    { id: "lv1", from: "2025-08-20", to: "2025-08-22", reason: "Family function", status: "Approved" },
+    {
+      id: "lv1",
+      from: "2025-08-20",
+      to: "2025-08-22",
+      reason: "Family function",
+      status: "Approved",
+    },
     { id: "lv2", from: "2025-09-05", to: "2025-09-05", reason: "Doctor visit", status: "Pending" },
   ]);
 
@@ -291,7 +297,7 @@ function LeavePanel() {
       reason: form.reason.trim(),
       status: "Pending",
     };
-    setRequests((r) => [item, ...r]);
+    setRequests(r => [item, ...r]);
     setForm({ from: "", to: "", reason: "" });
     setMsg("Leave request submitted. You'll be notified on approval.");
     setTimeout(() => setMsg(null), 4000);
@@ -308,7 +314,7 @@ function LeavePanel() {
                 type="date"
                 className="w-full rounded-xl border border-slate-200 px-3 py-2"
                 value={form.from}
-                onChange={(e) => setForm({ ...form, from: e.target.value })}
+                onChange={e => setForm({ ...form, from: e.target.value })}
               />
             </label>
             <label className="text-sm">
@@ -317,7 +323,7 @@ function LeavePanel() {
                 type="date"
                 className="w-full rounded-xl border border-slate-200 px-3 py-2"
                 value={form.to}
-                onChange={(e) => setForm({ ...form, to: e.target.value })}
+                onChange={e => setForm({ ...form, to: e.target.value })}
               />
             </label>
           </div>
@@ -328,10 +334,13 @@ function LeavePanel() {
               className="w-full rounded-xl border border-slate-200 px-3 py-2"
               placeholder="Write a brief reason..."
               value={form.reason}
-              onChange={(e) => setForm({ ...form, reason: e.target.value })}
+              onChange={e => setForm({ ...form, reason: e.target.value })}
             />
           </label>
-          <button onClick={submitLeave} className="w-full rounded-xl bg-pastelBlue px-4 py-2 font-medium">
+          <button
+            onClick={submitLeave}
+            className="w-full rounded-xl bg-pastelBlue px-4 py-2 font-medium"
+          >
             Submit Leave Request
           </button>
           {msg && (
@@ -354,7 +363,7 @@ function LeavePanel() {
               </tr>
             </thead>
             <tbody>
-              {requests.map((r) => (
+              {requests.map(r => (
                 <tr key={r.id} className="border-t border-slate-100">
                   <td className="py-2 pr-3">{r.from}</td>
                   <td className="py-2 pr-3">{r.to}</td>
@@ -407,19 +416,50 @@ function ProfilePanel() {
     <div id="profile" className="grid md:grid-cols-2 gap-3">
       <Card title="Parent Details">
         <div className="space-y-3">
-          <TextField label="Parent Name" value={form.parentName} onChange={(v)=>setForm({...form, parentName: v})} />
-          <TextField label="Email" value={form.email} onChange={(v)=>setForm({...form, email: v})} />
-          <TextField label="Phone" value={form.phone} onChange={(v)=>setForm({...form, phone: v})} />
-          <TextField label="Address" value={form.address} onChange={(v)=>setForm({...form, address: v})} />
+          <TextField
+            label="Parent Name"
+            value={form.parentName}
+            onChange={v => setForm({ ...form, parentName: v })}
+          />
+          <TextField
+            label="Email"
+            value={form.email}
+            onChange={v => setForm({ ...form, email: v })}
+          />
+          <TextField
+            label="Phone"
+            value={form.phone}
+            onChange={v => setForm({ ...form, phone: v })}
+          />
+          <TextField
+            label="Address"
+            value={form.address}
+            onChange={v => setForm({ ...form, address: v })}
+          />
         </div>
       </Card>
 
       <Card title="Student Details">
         <div className="space-y-3">
-          <TextField label="Student Name" value={form.studentName} onChange={(v)=>setForm({...form, studentName: v})} />
-          <TextField label="Class" value={form.className} onChange={(v)=>setForm({...form, className: v})} />
-          <TextField label="Emergency Contact" value={form.emergencyContact} onChange={(v)=>setForm({...form, emergencyContact: v})} />
-          <button onClick={saveProfile} className="w-full rounded-xl bg-pastelGreen px-4 py-2 font-medium">
+          <TextField
+            label="Student Name"
+            value={form.studentName}
+            onChange={v => setForm({ ...form, studentName: v })}
+          />
+          <TextField
+            label="Class"
+            value={form.className}
+            onChange={v => setForm({ ...form, className: v })}
+          />
+          <TextField
+            label="Emergency Contact"
+            value={form.emergencyContact}
+            onChange={v => setForm({ ...form, emergencyContact: v })}
+          />
+          <button
+            onClick={saveProfile}
+            className="w-full rounded-xl bg-pastelGreen px-4 py-2 font-medium"
+          >
             Save Changes
           </button>
           {saved && (
@@ -448,7 +488,7 @@ function TextField({
       <input
         className="w-full rounded-xl border border-slate-200 px-3 py-2"
         value={value}
-        onChange={(e)=>onChange(e.target.value)}
+        onChange={e => onChange(e.target.value)}
       />
     </label>
   );
