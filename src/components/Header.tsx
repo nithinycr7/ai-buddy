@@ -90,21 +90,37 @@ function MedalBadgeSideTag({
   );
 }
 
+
+
 export default function Header() {
   const user = useAppStore((s) => s.user);
   const location = useLocation();
+  
+
+// decide which name to show
+  let displayName = "User";
+  if (location.pathname === "/" || location.pathname.startsWith("/student")) {
+    displayName = user?.studentName || "Student";
+  } else if (location.pathname.startsWith("/teacher")) {
+    displayName = user?.teacherName || "Teacher";
+  } else if (location.pathname.startsWith("/parent")) {
+    displayName = user?.parentName || "Parent";
+  } else if (location.pathname.startsWith("/administration")) {
+    displayName = user?.adminName || "Admin";
+  }
+
+const initials =
+  displayName
+    ?.split(" ")
+    .map((p) => p[0])
+    .slice(0, 2)
+    .join("")
+    .toUpperCase() || "U";
 
   // show badges only on /student pages (handles /student, /student/..., etc.)
   const showBadges = location.pathname === "/" || location.pathname.startsWith("/student");
 
 
-  const initials =
-    user?.name
-      ?.split(" ")
-      .map((p) => p[0])
-      .slice(0, 2)
-      .join("")
-      .toUpperCase() || "U";
 
   return (
     <header className="sticky top-0 z-50">
@@ -181,8 +197,9 @@ export default function Header() {
                     {initials}
                   </span>
                   <span className="hidden md:inline text-sm font-medium max-w-[140px] truncate">
-                    {user?.name}
-                  </span>
+  {displayName}
+</span>
+
                   <ChevronDownIcon className="h-4 w-4 text-slate-500" />
                 </Menu.Button>
 
@@ -210,23 +227,35 @@ export default function Header() {
                           </div>
                         )}
                         <div>
-                          <div className="font-semibold text-sm text-slate-800">
-                            {user?.name}
-                          </div>
-                          <div className="text-xs text-slate-500">Student</div>
+                     <div className="font-semibold text-sm text-slate-800">
+                              {displayName}
+                            </div>
+                            <div className="text-xs text-slate-500">
+                              {location.pathname.startsWith("/teacher")
+                                ? "Teacher"
+                                : location.pathname.startsWith("/parent")
+                                ? "Parent"
+                                : location.pathname.startsWith("/administration")
+                                ? "Admin"
+                                : "Student"}
+                            </div>
+
                         </div>
                       </div>
 
-                      <div className="mt-3 rounded-xl bg-slate-50 border border-slate-200 p-2 text-sm space-y-1">
-                        <div className="flex items-center justify-between">
-                          <span className="text-slate-600">Section</span>
-                          <span className="font-medium">{user?.section}</span>
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <span className="text-slate-600">Class</span>
-                          <span className="font-medium">{user?.className}</span>
-                        </div>
-                      </div>
+                     {(location.pathname === "/" || location.pathname.startsWith("/student")) && (
+  <div className="mt-3 rounded-xl bg-slate-50 border border-slate-200 p-2 text-sm space-y-1">
+    <div className="flex items-center justify-between">
+      <span className="text-slate-600">Section</span>
+      <span className="font-medium">{user?.section}</span>
+    </div>
+    <div className="flex items-center justify-between">
+      <span className="text-slate-600">Class</span>
+      <span className="font-medium">{user?.className}</span>
+    </div>
+  </div>
+)}
+
 
                       <div className="mt-3 grid gap-2 text-sm">
                         <Menu.Item>

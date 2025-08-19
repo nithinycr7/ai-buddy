@@ -115,6 +115,10 @@ export type StudentBadge = "Math Whiz" | "Science Explorer" | "History Buff" | "
 
 export type UserProfile = {
   name: string;
+  studentName?: string;
+  teacherName?: string;
+  parentName?: string;
+  adminName?: string;
   avatarUrl?: string;
   section: string;
   className: string; // e.g., "10"
@@ -543,6 +547,10 @@ export const useAppStore = create<AppState>((set, get) => ({
   // ----- User
   user: {
     name: "Aarav Mehta",
+    studentName: "Aarav Mehta",
+    teacherName: "Mrs. Kritika",
+    parentName: "Mr. Ravi Mehta",
+    adminName: "Principal Rao",
     avatarUrl: "",
     section: "B",
     className: "10",
