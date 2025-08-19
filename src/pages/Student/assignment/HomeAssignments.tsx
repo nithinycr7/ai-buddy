@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useAppStore } from "../../../store/useAppStore";
+import { useAppStore } from "@/store/useAppStore";
 
 export default function HomeAssignments() {
   const todayISO = new Date().toISOString().slice(0, 10);
