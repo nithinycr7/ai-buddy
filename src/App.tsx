@@ -15,9 +15,12 @@ import Hobby from "./pages/Student/personality/Hobby";
 import Grievance from "./pages/Student/personality/Grievance";
 import HomeAssignments from "./pages/Student/assignment/HomeAssignments";
 import Administration from "./pages/Administration/Administration";
+import ExamAnalysis from "./pages/Student/ExamAnalysis";
 
 // Teacher
-import TeacherDashboard from "./pages/Teacher/Dashboard";
+//import TeacherDashboardPage from "./pages/Teacher/Dashboard";
+import  { Left as TeacherDashboardLeft, Right as TeacherDashboardRight } from "./pages/Teacher/Dashboard";
+
 import MockLectureFeedback from "./pages/Teacher/MockLectureFeedback";
 import FeedbackInsights from "./pages/Teacher/FeedbackInsights";
 
@@ -61,12 +64,12 @@ export default function App() {
           />
 
           {/* Teacher */}
-          <Route
-            path="/teacher"
-            element={
-              <TwoPageShell left={<TeacherDashboard.Left />} right={<TeacherDashboard.Right />} />
-            }
-          />
+     <Route
+  path="/teacher"
+  element={
+    <TwoPageShell left={<TeacherDashboardLeft />} right={<TeacherDashboardRight />} />
+  }
+/>
           <Route
             path="/teacher/mock-feedback"
             element={
@@ -96,6 +99,8 @@ export default function App() {
           <Route path="/administration" element={<Administration />} />
 
           <Route path="/student/assignments" element={<HomeAssignments />} />
+           <Route path="/student/exam-analysis" element={<ExamAnalysis />} />
+
 
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

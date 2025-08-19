@@ -6,6 +6,7 @@ const tabs = [
   // { to: '/student/quiz', label: 'Quizzes', icon: '📝' },
   { to: "/teacher", label: "Teacher", icon: "👩‍🏫" },
   { to: "/parent", label: "Parent", icon: "👨‍👩‍👧" },
+    { to: "/administration", label: "Admin", icon: "👨" },
 ];
 
 export default function BottomNav() {
@@ -32,14 +33,16 @@ export default function BottomNav() {
             key={t.to}
             to={t.to}
             className={({ isActive }) =>
-              `px-3 py-2 rounded-xl text-sm flex items-center gap-1 ${
-                isActive ? "bg-pastelBlue ring-2 ring-slate-700" : "hover:bg-white"
-              }`
+              `px-3 py-2 rounded-xl text-sm flex items-center gap-1 transition 
+              ${isActive 
+                  ? "bg-pastelBlue ring-2 ring-slate-700" 
+                  : "bg-transparent hover:bg-white/30"}`
             }
           >
             <span>{t.icon}</span>
-            <span className="">{t.label}</span>
+            <span>{t.label}</span>
           </NavLink>
+
         ))
       )}
     </div>

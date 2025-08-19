@@ -542,7 +542,7 @@ export const useAppStore = create<AppState>((set, get) => ({
     avatarUrl: "",
     section: "B",
     className: "10",
-    schoolLogoUrl: "",
+    schoolLogoUrl: "/images/school_image.jpg", // <-- update this line // Put your logo file in your project's public/assets or public/images folder
     badges: ["Math Whiz", "Science Explorer", "History Buff", "Language Lover"],
   },
 
@@ -697,7 +697,7 @@ export const useAppStore = create<AppState>((set, get) => ({
 
   // ----- Teacher meta
   subjects: ["Biology", "Math", "Physics", "Chemistry"],
-  classesList: ["6", "7", "8", "9", "10"],
+  classesList: ["6", "7"],
   sections: ["A", "B", "C"],
 
   _topicsBySubjectMap: TOPICS,

@@ -1,7 +1,6 @@
 // src/pages/parent/Dashboard.tsx
 import { useMemo, useState } from "react";
 import Card from "../../components/UI/Card";
-import ParentAdminUtility from "./ParentAdminUtility";
 
 /* -------------------- date helpers -------------------- */
 function startOfWeek(d: Date) {
@@ -178,10 +177,7 @@ export default function ParentDashboard() {
         <WeeklyPerformance />
         <RightPanel />
 
-        {/* Bottom full-width card */}
-        <Card className="lg:col-span-2">
-          <ParentAdminUtility />
-        </Card>
+  
       </div>
     </div>
   );

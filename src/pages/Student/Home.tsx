@@ -137,37 +137,47 @@ function Right() {
       <StickyNote>
         <span className="whitespace-pre-line">{tip}</span>
       </StickyNote>
-      <Card title="Upcoming Exams">
-        {exams.length === 0 ? (
-          <div className="text-sm text-slate-600">No upcoming exams scheduled.</div>
-        ) : (
-          <ul className="space-y-3">
-            {exams.map(ex => (
-              <li key={ex.id} className="flex items-start justify-between gap-3">
-                <div className="min-w-0">
-                  <div className="font-medium">
-                    {ex.subject} — <span className="text-slate-700">{ex.topic}</span>
-                  </div>
-                  <div className="text-xs text-slate-500">{fmt(ex.dateISO)}</div>
-                </div>
-                <button
-                  onClick={() => navigate(`/student/replay?exam=${encodeURIComponent(ex.id)}`)}
-                  className="shrink-0 px-3 py-1.5 rounded-lg bg-pastelGreen border shadow-soft hover:bg-emerald-100 text-sm"
-                >
-                  Help me revise
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
+     <Card title="Exam Corner">
+  {exams.length === 0 ? (
+    <div className="text-sm text-slate-600">No upcoming exams scheduled.</div>
+  ) : (
+    <ul className="space-y-3">
+      {exams.map(ex => (
+        <li key={ex.id} className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <div className="font-medium">
+              {ex.subject} — <span className="text-slate-700">{ex.topic}</span>
+            </div>
+            <div className="text-xs text-slate-500">{fmt(ex.dateISO)}</div>
+          </div>
+          <button
+            onClick={() => navigate(`/student/replay?exam=${encodeURIComponent(ex.id)}`)}
+            className="shrink-0 px-3 py-1.5 rounded-lg bg-pastelGreen border shadow-soft hover:bg-emerald-100 text-sm"
+          >
+            Help me revise
+          </button>
+        </li>
+      ))}
+    </ul>
+  )}
 
-        <button
-          onClick={() => navigate("/student/journal?plan=revision")}
-          className="mt-6 w-full px-4 py-3 rounded-xl bg-slate-800 text-white shadow-soft hover:bg-slate-700"
-        >
-          Let’s schedule a timetable for the revision
-        </button>
-      </Card>
+  {/* Replaced single button with two side-by-side buttons */}
+  <div className="mt-6 grid grid-cols-2 gap-3">
+    <button
+      onClick={() => navigate("/student/exam-analysis")}
+      className="px-4 py-3 rounded-xl bg-pastelGreen text-black shadow-soft hover:bg-indigo-500"
+    >
+      Analyse Past Exam
+    </button>
+    <button
+      onClick={() => navigate("/student/journal?plan=revision")}
+      className="px-4 py-3 rounded-xl bg-pastelYellow text-black shadow-soft hover:bg-slate-700"
+    >
+      Prepare Timetable
+    </button>
+  </div>
+</Card>
+
 
       {/* CTA under the card */}
 

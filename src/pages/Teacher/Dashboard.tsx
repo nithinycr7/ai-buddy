@@ -1,10 +1,9 @@
 // src/pages/Teacher/Dashboard.tsx
 import { useMemo, useState } from "react";
-import { DatePicker } from "../../components/Inputs/DatePicker"; // if you don't have one, swap for <input type="date" />
 import Card from "../../components/UI/Card";
 import { useAppStore } from "../../store/useAppStore";
-import { ChevronDownIcon } from "@heroicons/react/20/solid";
 
+/* ---------------- Types ---------------- */
 type LessonPlanInput = {
   subject: string;
   className: string;
@@ -13,16 +12,33 @@ type LessonPlanInput = {
   topicOther?: string;
 };
 
-function Left() {
+type LecturePlan = {
+  meta: {
+    subject: string;
+    className: string;
+    section?: string;
+    topic: string;
+    durationMins: number;
+  };
+  objectives: string[];
+  hook: string;
+  activities: Array<{ title: string; minutes?: number; materials?: string }>;
+  differentiation: string[];
+  checksForUnderstanding: string[];
+  materials: string[];
+  timing: Array<{ block: string; minutes: number }>;
+};
+
+/* ------------- LEFT: Planner + Notes ------------- */
+export function Left() {
   const todayISO = new Date().toISOString().slice(0, 10);
   const [dateISO, setDateISO] = useState<string>(todayISO);
   const [selectedRow, setSelectedRow] = useState<number | null>(null);
 
-  // ---- Zustand selectors (all optional-friendly) ----
   const {
     // timetable
     getTimetableForDate,
-    timetable, // optional object: { [dateISO]: Array<{id, period, subject, className, section}> }
+    timetable,
     // meta
     subjects = [],
     classesList = [],
@@ -32,27 +48,31 @@ function Left() {
     getTeachingNotes,
     // write
     upsertLessonPlan,
-  } = useAppStore(s => ({
-    getTimetableForDate: (s as any).getTimetableForDate,
-    timetable: (s as any).timetable,
-    subjects: (s as any).subjects,
-    classesList: (s as any).classesList,
-    sections: (s as any).sections,
-    topicsBySubject: (s as any).topicsBySubject,
-    getTeachingNotes: (s as any).getTeachingNotes,
-    upsertLessonPlan: (s as any).upsertLessonPlan,
+    // 🔑 UI state in store for cross-column comms
+    setRightTab,
+    setLecturePlan,
+  } = useAppStore((s: any) => ({
+    getTimetableForDate: s.getTimetableForDate,
+    timetable: s.timetable,
+    subjects: s.subjects,
+    classesList: s.classesList,
+    sections: s.sections,
+    topicsBySubject: s.topicsBySubject,
+    getTeachingNotes: s.getTeachingNotes,
+    upsertLessonPlan: s.upsertLessonPlan,
+    setRightTab: s.setRightTab ?? (() => {}),
+    setLecturePlan: s.setLecturePlan ?? (() => {}),
   }));
 
-  // timetable rows for the chosen date – prefers selector, falls back to map
   const rows = useMemo(() => {
-    if (typeof getTimetableForDate === "function") return getTimetableForDate(dateISO) || [];
+    if (typeof getTimetableForDate === "function")
+      return getTimetableForDate(dateISO) || [];
     if (timetable && timetable[dateISO]) return timetable[dateISO];
     return [];
   }, [dateISO, getTimetableForDate, timetable]);
 
   const selected = selectedRow != null ? rows[selectedRow] : null;
 
-  // controlled inputs for the “Day Timetable → bottom card”
   const [inputs, setInputs] = useState<LessonPlanInput>({
     subject: "",
     className: "",
@@ -61,12 +81,11 @@ function Left() {
     topicOther: "",
   });
 
-  // when a row is picked, prefill subject/class/section from that row
   function pickRow(i: number) {
     setSelectedRow(i);
     const r = rows[i];
     if (!r) return;
-    setInputs(prev => ({
+    setInputs((prev) => ({
       ...prev,
       subject: r.subject || prev.subject,
       className: r.className || prev.className,
@@ -74,7 +93,6 @@ function Left() {
     }));
   }
 
-  // topic list from store for chosen subject
   const subjectTopics: string[] = useMemo(() => {
     if (!inputs.subject) return [];
     if (typeof topicsBySubject === "function") {
@@ -84,13 +102,13 @@ function Left() {
     return dict?.[inputs.subject] || [];
   }, [inputs.subject, topicsBySubject]);
 
-  const effectiveTopic = inputs.topic === "Other" ? (inputs.topicOther || "").trim() : inputs.topic;
+  const effectiveTopic =
+    inputs.topic === "Other" ? (inputs.topicOther || "").trim() : inputs.topic;
 
-  // notes from store (tips/examples/core concepts)
   const notes = useMemo(() => {
     if (!inputs.subject || !effectiveTopic) return null;
     if (typeof getTeachingNotes === "function") {
-      return getTeachingNotes(inputs.subject, effectiveTopic); // expected: { tips: string[], examples: string[], coreConcepts: string[] }
+      return getTeachingNotes(inputs.subject, effectiveTopic);
     }
     return null;
   }, [inputs.subject, effectiveTopic, getTeachingNotes]);
@@ -108,19 +126,70 @@ function Left() {
     }
   }
 
+  function prepareLecturePlan() {
+    if (!inputs.subject || !effectiveTopic || !inputs.className) return;
+
+    const plan: LecturePlan = {
+      meta: {
+        subject: inputs.subject,
+        className: inputs.className,
+        section: inputs.section,
+        topic: effectiveTopic,
+        durationMins: 40,
+      },
+      objectives: [
+        "Define key terms and symbols.",
+        "Explain relationships between core ideas.",
+        "Apply the concept to two real‑world examples.",
+      ],
+      hook:
+        "Open with a 60–90s demo/visual or quick thought experiment to spark curiosity.",
+      activities: [
+        { title: "Think–Pair–Share", minutes: 8, materials: "Notebook" },
+        {
+          title: "Guided Example + Error Analysis",
+          minutes: 10,
+          materials: "Projector/board",
+        },
+        { title: "Mini Whiteboard Check", minutes: 6, materials: "Markers" },
+        { title: "Independent Practice (2–3 Qs)", minutes: 8 },
+      ],
+      differentiation: [
+        "Scaffolded version of main problem for support.",
+        "Extension challenge for fast finishers.",
+      ],
+      checksForUnderstanding: [
+        "Cold‑call 3–4 students on the core concept.",
+        "2‑question exit ticket on the likely misconception.",
+      ],
+      materials: ["Projector", "Worksheets", "Markers"],
+      timing: [
+        { block: "Hook", minutes: 4 },
+        { block: "Core Teaching", minutes: 15 },
+        { block: "Guided Practice", minutes: 12 },
+        { block: "Exit Ticket", minutes: 9 },
+      ],
+    };
+
+    // send to right column via store
+    setLecturePlan(plan);
+    setRightTab?.("plan");
+  }
+
+  const canPrepare =
+    Boolean(inputs.subject) && Boolean(effectiveTopic) && Boolean(inputs.className);
+
   return (
     <div className="space-y-4">
       <h2 className="text-2xl ">Teacher — Planner</h2>
 
-      {/* Calendar + Date */}
       <Card title="Pick a date">
         <div className="flex items-center gap-3">
-          {/* swap for your Calendar if you have one */}
           <input
             type="date"
             className="rounded-xl border border-slate-200 px-3 py-2 bg-white"
             value={dateISO}
-            onChange={e => setDateISO(e.target.value)}
+            onChange={(e) => setDateISO(e.target.value)}
           />
           <div className="text-sm text-slate-600">
             Showing timetable & notes for: <span className="font-medium">{dateISO}</span>
@@ -128,7 +197,6 @@ function Left() {
         </div>
       </Card>
 
-      {/* Day Timetable */}
       <Card title="Day Timetable">
         {rows.length === 0 ? (
           <div className="text-sm text-slate-500">No periods scheduled for this date.</div>
@@ -157,7 +225,6 @@ function Left() {
         )}
       </Card>
 
-      {/* Edit / Confirm lesson details + show notes */}
       <Card title="Lesson Details">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
           {/* Subject */}
@@ -165,8 +232,8 @@ function Left() {
             <label className="block text-xs text-slate-600 mb-1">Subject</label>
             <select
               value={inputs.subject}
-              onChange={e =>
-                setInputs(p => ({ ...p, subject: e.target.value, topic: "", topicOther: "" }))
+              onChange={(e) =>
+                setInputs((p) => ({ ...p, subject: e.target.value, topic: "", topicOther: "" }))
               }
               className="w-full rounded-xl border border-slate-200 px-3 py-2 bg-white"
             >
@@ -184,7 +251,7 @@ function Left() {
             <label className="block text-xs text-slate-600 mb-1">Class</label>
             <select
               value={inputs.className}
-              onChange={e => setInputs(p => ({ ...p, className: e.target.value }))}
+              onChange={(e) => setInputs((p) => ({ ...p, className: e.target.value }))}
               className="w-full rounded-xl border border-slate-200 px-3 py-2 bg-white"
             >
               <option value="">Select</option>
@@ -201,7 +268,7 @@ function Left() {
             <label className="block text-xs text-slate-600 mb-1">Section</label>
             <select
               value={inputs.section}
-              onChange={e => setInputs(p => ({ ...p, section: e.target.value }))}
+              onChange={(e) => setInputs((p) => ({ ...p, section: e.target.value }))}
               className="w-full rounded-xl border border-slate-200 px-3 py-2 bg-white"
             >
               <option value="">Select</option>
@@ -219,7 +286,7 @@ function Left() {
             <div className="flex gap-2">
               <select
                 value={inputs.topic}
-                onChange={e => setInputs(p => ({ ...p, topic: e.target.value, topicOther: "" }))}
+                onChange={(e) => setInputs((p) => ({ ...p, topic: e.target.value, topicOther: "" }))}
                 className="flex-1 rounded-xl border border-slate-200 px-3 py-2 bg-white"
               >
                 <option value="">Select</option>
@@ -235,7 +302,7 @@ function Left() {
               <input
                 placeholder="Enter custom topic"
                 value={inputs.topicOther}
-                onChange={e => setInputs(p => ({ ...p, topicOther: e.target.value }))}
+                onChange={(e) => setInputs((p) => ({ ...p, topicOther: e.target.value }))}
                 className="mt-2 w-full rounded-xl border border-slate-200 px-3 py-2 bg-white"
               />
             )}
@@ -247,8 +314,18 @@ function Left() {
             onClick={saveLessonPlan}
             className="px-4 py-2 rounded-xl bg-slate-900 text-white hover:bg-slate-800"
           >
-            Save to timetable
+            Generate Quick Notes
           </button>
+
+          <button
+            onClick={prepareLecturePlan}
+            className="px-4 py-2 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 disabled:opacity-50"
+            disabled={!canPrepare}
+            title={canPrepare ? "" : "Select Subject, Class and Topic to prepare a plan"}
+          >
+            Prepare Lecture Plan
+          </button>
+
           {selected && (
             <div className="text-xs text-slate-600">
               Saving for <span className="font-medium">{dateISO}</span>, Period{" "}
@@ -260,17 +337,14 @@ function Left() {
         {/* Teaching notes */}
         {inputs.subject && effectiveTopic && (
           <Card title={`${inputs.subject} — ${effectiveTopic}`}>
-            {/* Core Concepts */}
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <h3 className="text-base font-semibold">Core Concepts</h3>
-                {/* optional count */}
                 <span className="text-xs text-slate-500">
                   {notes?.coreConcepts?.length ?? 0} points
                 </span>
               </div>
 
-              {/* scrollable list, clean bullets, comfy line-height */}
               <ul className="list-disc pl-5 leading-6 text-[15px] text-slate-700 max-h-64 overflow-auto pr-2">
                 {notes?.coreConcepts?.length ? (
                   notes.coreConcepts.map((t: string, i: number) => (
@@ -283,10 +357,8 @@ function Left() {
                 )}
               </ul>
 
-              {/* Divider */}
               <div className="h-px bg-slate-200 my-2" />
 
-              {/* Tips + Examples footer (2-cols on desktop, 1-col on mobile) */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div className="rounded-xl border border-slate-200 p-3 bg-slate-50/70">
                   <div className="font-medium mb-1">Tips</div>
@@ -318,7 +390,8 @@ function Left() {
   );
 }
 
-function Right() {
+/* ------------- RIGHT: Tabs + Engagement + Plan ------------- */
+export function Right() {
   const todayISO = new Date().toISOString().slice(0, 10);
   const [dateISO, setDateISO] = useState<string>(todayISO);
   const [className, setClassName] = useState<string>("");
@@ -327,97 +400,206 @@ function Right() {
   const {
     classesList = [],
     sections = [],
-    getEngagement, // fn(dateISO, class?, section?) => number[]
-  } = useAppStore(s => ({
-    classesList: (s as any).classesList,
-    sections: (s as any).sections,
-    getEngagement: (s as any).getEngagement,
+    getEngagement,
+    // 🔑 UI state
+    rightTab = "engagement",
+    setRightTab = () => {},
+    lecturePlan = null,
+  } = useAppStore((s: any) => ({
+    classesList: s.classesList,
+    sections: s.sections,
+    getEngagement: s.getEngagement,
+    rightTab: s.rightTab,
+    setRightTab: s.setRightTab,
+    lecturePlan: s.lecturePlan,
   }));
 
-  // const engagement: number[] = useMemo(() => {
-  //   if (typeof getEngagement === 'function') {
-  //     return getEngagement(dateISO, className || undefined, section || undefined) || []
-  //   }
-  //   return [] // no fallback data here (per your request)
-  // }, [dateISO, className, section, getEngagement])
-
-  const engagement = getEngagement(dateISO, className || undefined, section || undefined);
+  const engagement =
+    typeof getEngagement === "function"
+      ? getEngagement(dateISO, className || undefined, section || undefined) || []
+      : [];
 
   return (
     <div className="space-y-4">
-      <h2 className="text-2xl ">Class Revision and Quiz Engagement</h2>
+      {/* Tabs */}
+      <div className="flex items-center gap-2">
+        <button
+          className={`px-3 py-1.5 rounded-lg border ${
+            rightTab === "engagement" ? "bg-slate-900 text-white" : "bg-white"
+          }`}
+          onClick={() => setRightTab("engagement")}
+        >
+          Engagement
+        </button>
+        <button
+          className={`px-3 py-1.5 rounded-lg border ${
+            rightTab === "plan" ? "bg-slate-900 text-white" : "bg-white"
+          }`}
+          onClick={() => setRightTab("plan")}
+        >
+          Lecture Plan
+        </button>
+      </div>
 
-      <Card title="Filters">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-          <div>
-            <label className="block text-xs text-slate-600 mb-1">Date</label>
-            <input
-              type="date"
-              className="w-full rounded-xl border border-slate-200 px-3 py-2 bg-white"
-              value={dateISO}
-              onChange={e => setDateISO(e.target.value)}
-            />
-          </div>
-          <div>
-            <label className="block text-xs text-slate-600 mb-1">Class (optional)</label>
-            <select
-              className="w-full rounded-xl border border-slate-200 px-3 py-2 bg-white"
-              value={className}
-              onChange={e => {
-                setClassName(e.target.value);
-                setSection("");
-              }}
-            >
-              <option value="">All Classes</option>
-              {classesList?.map((c: string) => (
-                <option key={c} value={c}>
-                  {c}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className="block text-xs text-slate-600 mb-1">Section (optional)</label>
-            <select
-              className="w-full rounded-xl border border-slate-200 px-3 py-2 bg-white"
-              value={section}
-              onChange={e => setSection(e.target.value)}
-              disabled={!className}
-            >
-              <option value="">{className ? "All Sections" : "Select a class first"}</option>
-              {className &&
-                sections?.map((s: string) => (
-                  <option key={s} value={s}>
-                    {s}
-                  </option>
-                ))}
-            </select>
-          </div>
-        </div>
-      </Card>
+      {rightTab === "engagement" ? (
+        <>
+          <h2 className="text-2xl ">Class Revision and Quiz Engagement</h2>
 
-      <Card title="Engagement by Roll Number">
-        <div className="overflow-x-auto">
-          <table className="min-w-full text-sm border">
-            <thead>
-              <tr>
-                <th className="border px-2 py-1">Roll No</th>
-                <th className="border px-2 py-1">Progress (%)</th>
-              </tr>
-            </thead>
-            <tbody>
-              {engagement.map(s => (
-                <tr key={s.name}>
-                  <td className="border px-2 py-1">{s.name}</td>
-                  <td className="border px-2 py-1">{s.progress}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </Card>
+          <Card title="Filters">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <div>
+                <label className="block text-xs text-slate-600 mb-1">Date</label>
+                <input
+                  type="date"
+                  className="w-full rounded-xl border border-slate-200 px-3 py-2 bg-white"
+                  value={dateISO}
+                  onChange={(e) => setDateISO(e.target.value)}
+                />
+              </div>
+              <div>
+                <label className="block text-xs text-slate-600 mb-1">Class (optional)</label>
+                <select
+                  className="w-full rounded-xl border border-slate-200 px-3 py-2 bg-white"
+                  value={className}
+                  onChange={(e) => {
+                    setClassName(e.target.value);
+                    setSection("");
+                  }}
+                >
+                  <option value="">All Classes</option>
+                  {classesList?.map((c: string) => (
+                    <option key={c} value={c}>
+                      {c}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs text-slate-600 mb-1">Section (optional)</label>
+                <select
+                  className="w-full rounded-xl border border-slate-200 px-3 py-2 bg-white"
+                  value={section}
+                  onChange={(e) => setSection(e.target.value)}
+                  disabled={!className}
+                >
+                  <option value="">{className ? "All Sections" : "Select a class first"}</option>
+                  {className &&
+                    sections?.map((s: string) => (
+                      <option key={s} value={s}>
+                        {s}
+                      </option>
+                    ))}
+                </select>
+              </div>
+            </div>
+          </Card>
+
+          <Card title="Engagement by Roll Number">
+            <div className="overflow-x-auto">
+              <table className="min-w-full text-sm border">
+                <thead>
+                  <tr>
+                    <th className="border px-2 py-1">Roll No</th>
+                    <th className="border px-2 py-1">Progress (%)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {engagement.map((s: any) => (
+                    <tr key={s.name}>
+                      <td className="border px-2 py-1">{s.name}</td>
+                      <td className="border px-2 py-1">{s.progress}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </Card>
+        </>
+      ) : (
+        <>
+          <h2 className="text-2xl ">Lecture Plan</h2>
+          {!lecturePlan ? (
+            <div className="text-sm text-slate-500">
+              No plan yet. Use “Prepare Lecture Plan” on the left.
+            </div>
+          ) : (
+            <div className="space-y-3">
+              <Card
+                title={`${lecturePlan.meta.subject} — ${lecturePlan.meta.topic} (Class ${lecturePlan.meta.className}${
+                  lecturePlan.meta.section ? "-" + lecturePlan.meta.section : ""
+                })`}
+              >
+                <div className="text-sm text-slate-600 mb-2">
+                  Duration: {lecturePlan.meta.durationMins} mins
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-3">
+                  <section className="rounded-xl border p-3">
+                    <h3 className="font-medium mb-1">Objectives</h3>
+                    <ul className="list-disc pl-5 text-sm leading-6">
+                      {lecturePlan.objectives.map((o, i) => (
+                        <li key={i}>{o}</li>
+                      ))}
+                    </ul>
+                  </section>
+
+                  <section className="rounded-xl border p-3">
+                    <h3 className="font-medium mb-1">Hook</h3>
+                    <p className="text-sm leading-6">{lecturePlan.hook}</p>
+                  </section>
+
+                  <section className="rounded-xl border p-3 md:col-span-2">
+                    <h3 className="font-medium mb-1">Activities</h3>
+                    <ul className="list-disc pl-5 text-sm leading-6">
+                      {lecturePlan.activities.map((a, i) => (
+                        <li key={i}>
+                          <span className="font-medium">{a.title}</span>
+                          {a.minutes ? ` — ${a.minutes} mins` : ""}
+                          {a.materials ? ` — ${a.materials}` : ""}
+                        </li>
+                      ))}
+                    </ul>
+                  </section>
+
+                  <section className="rounded-xl border p-3">
+                    <h3 className="font-medium mb-1">Differentiation</h3>
+                    <ul className="list-disc pl-5 text-sm leading-6">
+                      {lecturePlan.differentiation.map((d, i) => (
+                        <li key={i}>{d}</li>
+                      ))}
+                    </ul>
+                  </section>
+
+                  <section className="rounded-xl border p-3">
+                    <h3 className="font-medium mb-1">Checks for Understanding</h3>
+                    <ul className="list-disc pl-5 text-sm leading-6">
+                      {lecturePlan.checksForUnderstanding.map((c, i) => (
+                        <li key={i}>{c}</li>
+                      ))}
+                    </ul>
+                  </section>
+
+                  <section className="rounded-xl border p-3 md:col-span-2">
+                    <h3 className="font-medium mb-1">Materials</h3>
+                    <p className="text-sm leading-6">{lecturePlan.materials.join(", ")}</p>
+                  </section>
+
+                  <section className="rounded-xl border p-3 md:col-span-2">
+                    <h3 className="font-medium mb-1">Timing</h3>
+                    <ul className="list-disc pl-5 text-sm leading-6">
+                      {lecturePlan.timing.map((t, i) => (
+                        <li key={i}>
+                          {t.block}: {t.minutes} mins
+                        </li>
+                      ))}
+                    </ul>
+                  </section>
+                </div>
+              </Card>
+            </div>
+          )}
+        </>
+      )}
     </div>
   );
 }
-
-export default { Left, Right };
