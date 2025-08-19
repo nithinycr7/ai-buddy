@@ -190,7 +190,11 @@ export type AppState = {
   }) => void;
 
   // engagement
-  getEngagement: (args: {
+  getEngagement: ({
+    dateISO,
+    className,
+    section,
+  }: {
     dateISO: string;
     className?: string;
     section?: string;
@@ -546,6 +550,34 @@ export const useAppStore = create<AppState>((set, get) => ({
     badges: ["Math Whiz", "Science Explorer", "History Buff", "Language Lover"],
   },
 
+  // ----- Required for AppState compatibility
+  state: {
+    aiTip: "",
+    upcomingExams: [],
+    getClassesFor: () => [],
+    communication: {
+      transcripts: [],
+      addTurn: () => {},
+      addCoachNudge: () => {},
+      reset: () => {},
+    },
+    hobby: {
+      selected: null,
+      plans: {},
+      select: () => {},
+      markDone: () => {},
+    },
+    grievances: {
+      all: [],
+      submit: () => {},
+    },
+    getAssignmentsFor: () => [],
+    toggleAssignment: () => {},
+    _classes: [],
+    _assignments: [],
+  },
+  _classes: [],
+
   // ----- Student
   classes: [
     // Biology topics
@@ -751,10 +783,16 @@ export const useAppStore = create<AppState>((set, get) => ({
 
     set(prev => ({ timetable: { ...prev.timetable, [dateISO]: next } }));
   },
-
-  // Engagement
-
-  getEngagement: (dateISO: string, className?: string, section?: string) => {
+  // engagement
+  getEngagement: ({
+    dateISO,
+    className,
+    section,
+  }: {
+    dateISO: string;
+    className?: string;
+    section?: string;
+  }) => {
     const key = `${dateISO}|${className ?? "ALL"}|${section ?? "ALL"}`;
     const base = hashStr(key);
     const students: { rollNo: number; progress: number; name: string }[] = [];
@@ -900,3 +938,8 @@ export const useAppStore = create<AppState>((set, get) => ({
 // function todayISO(arg0: number): string {
 //   throw new Error('Function not implemented.')
 // }
+
+// Simple unique ID generator for store items
+function makeId(): string {
+  return Math.random().toString(36).substr(2, 9) + Date.now().toString(36);
+}

@@ -8,7 +8,11 @@ const q = {
 };
 
 export default function Quiz() {
-  const { quiz, setQuizIndex, markCorrect } = useAppStore();
+const { quiz, setQuizIndex, markCorrect } = useAppStore(s => ({
+  quiz: (s as any).quiz,
+  setQuizIndex: (s as any).setQuizIndex,
+  markCorrect: (s as any).markCorrect,
+}));
   const [selected, setSelected] = useState<number | null>(null);
   const [result, setResult] = useState<"idle" | "correct" | "wrong">("idle");
 

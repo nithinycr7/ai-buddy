@@ -414,11 +414,11 @@ export function Right() {
     lecturePlan: s.lecturePlan,
   }));
 
-  const engagement =
-    typeof getEngagement === "function"
-      ? getEngagement(dateISO, className || undefined, section || undefined) || []
-      : [];
 
+    const engagement = typeof getEngagement === "function"
+  ? getEngagement({ dateISO, className: className || undefined, section: section || undefined }) || []
+  : [];
+ 
   return (
     <div className="space-y-4">
       {/* Tabs */}
@@ -537,7 +537,7 @@ export function Right() {
                   <section className="rounded-xl border p-3">
                     <h3 className="font-medium mb-1">Objectives</h3>
                     <ul className="list-disc pl-5 text-sm leading-6">
-                      {lecturePlan.objectives.map((o, i) => (
+                      {lecturePlan.objectives.map((o: string, i: number) => (
                         <li key={i}>{o}</li>
                       ))}
                     </ul>
@@ -551,31 +551,36 @@ export function Right() {
                   <section className="rounded-xl border p-3 md:col-span-2">
                     <h3 className="font-medium mb-1">Activities</h3>
                     <ul className="list-disc pl-5 text-sm leading-6">
-                      {lecturePlan.activities.map((a, i) => (
-                        <li key={i}>
-                          <span className="font-medium">{a.title}</span>
-                          {a.minutes ? ` — ${a.minutes} mins` : ""}
-                          {a.materials ? ` — ${a.materials}` : ""}
-                        </li>
-                      ))}
+                              {lecturePlan.activities.map(
+            (a: { title: string; minutes?: number; materials?: string }, i: number) => (
+              <li key={i}>
+                <span className="font-medium">{a.title}</span>
+                {a.minutes ? ` — ${a.minutes} mins` : ""}
+                {a.materials ? ` — ${a.materials}` : ""}
+              </li>
+            )
+          )}
+
                     </ul>
                   </section>
 
                   <section className="rounded-xl border p-3">
                     <h3 className="font-medium mb-1">Differentiation</h3>
                     <ul className="list-disc pl-5 text-sm leading-6">
-                      {lecturePlan.differentiation.map((d, i) => (
-                        <li key={i}>{d}</li>
-                      ))}
+                  {lecturePlan.differentiation.map((d: string, i: number) => (
+  <li key={i}>{d}</li>
+))}
+
                     </ul>
                   </section>
 
                   <section className="rounded-xl border p-3">
                     <h3 className="font-medium mb-1">Checks for Understanding</h3>
                     <ul className="list-disc pl-5 text-sm leading-6">
-                      {lecturePlan.checksForUnderstanding.map((c, i) => (
-                        <li key={i}>{c}</li>
-                      ))}
+                    {lecturePlan.checksForUnderstanding.map((c: string, i: number) => (
+  <li key={i}>{c}</li>
+))}
+
                     </ul>
                   </section>
 
@@ -587,11 +592,12 @@ export function Right() {
                   <section className="rounded-xl border p-3 md:col-span-2">
                     <h3 className="font-medium mb-1">Timing</h3>
                     <ul className="list-disc pl-5 text-sm leading-6">
-                      {lecturePlan.timing.map((t, i) => (
-                        <li key={i}>
-                          {t.block}: {t.minutes} mins
-                        </li>
-                      ))}
+                     {lecturePlan.timing.map((t: { block: string; minutes: number }, i: number) => (
+  <li key={i}>
+    {t.block}: {t.minutes} mins
+  </li>
+))}
+
                     </ul>
                   </section>
                 </div>
