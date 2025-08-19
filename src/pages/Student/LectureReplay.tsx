@@ -110,25 +110,25 @@ And Captain Chlorophyll smiled,
 “Every green leaf is a hero. Together, we keep the planet alive.”`
     );
   };
-const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(false);
 
-const copyStory = async () => {
-  try {
-    await navigator.clipboard.writeText(story);
-  } catch {}
-};
+  const copyStory = async () => {
+    try {
+      await navigator.clipboard.writeText(story);
+    } catch {}
+  };
 
-const downloadStory = () => {
-  const blob = new Blob([story], { type: "text/plain;charset=utf-8" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "generated-story.txt";
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  URL.revokeObjectURL(url);
-};
+  const downloadStory = () => {
+    const blob = new Blob([story], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "generated-story.txt";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  };
 
   return (
     <div className="space-y-4">
@@ -156,64 +156,89 @@ const downloadStory = () => {
         </div>
 
         {story && (
-  <div className="mt-3">
-    <label className="block text-sm text-slate-600 mb-1">Generated Story</label>
+          <div className="mt-3">
+            <label className="block text-sm text-slate-600 mb-1">Generated Story</label>
 
-    {/* Compact inline reader (better than textarea for read-only) */}
-    <div className="relative">
-      <div className="w-full min-h-[14rem] max-h-[50vh] overflow-auto border rounded-xl p-3 bg-slate-50 whitespace-pre-wrap leading-7 pr-10">
-        {story}
-      </div>
+            {/* Compact inline reader (better than textarea for read-only) */}
+            <div className="relative">
+              <div className="w-full min-h-[14rem] max-h-[50vh] overflow-auto border rounded-xl p-3 bg-slate-50 whitespace-pre-wrap leading-7 pr-10">
+                {story}
+              </div>
 
-      {/* Speaker button for inline story */}
-      <SpeakButton text={story} ariaLabel="Listen to generated story" />
-    </div>
-
-    {/* Actions */}
-    <div className="mt-2 flex flex-wrap gap-2">
-      <button onClick={() => setOpen(true)} className="px-3 py-1.5 rounded-lg border shadow-soft bg-white hover:bg-slate-50">
-        Open Fullscreen
-      </button>
-      <button onClick={copyStory} className="px-3 py-1.5 rounded-lg border shadow-soft bg-white hover:bg-slate-50">
-        Copy
-      </button>
-      <button onClick={downloadStory} className="px-3 py-1.5 rounded-lg border shadow-soft bg-white hover:bg-slate-50">
-        Download .txt
-      </button>
-    </div>
-
-    {/* Fullscreen modal */}
-    {open && (
-      <div
-        className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="story-title"
-        onClick={(e) => {
-          if (e.target === e.currentTarget) setOpen(false); // click backdrop to close
-        }}
-      >
-        <div className="m-auto w-[min(900px,95vw)] h-[80vh] rounded-2xl bg-white p-4 shadow-soft flex flex-col">
-          <div className="flex items-center justify-between gap-3 mb-2">
-            <h3 id="story-title" className="text-lg font-semibold">Generated Story</h3>
-            <div className="flex gap-2">
-              <button onClick={copyStory} className="px-3 py-1.5 rounded-lg border bg-white hover:bg-slate-50">Copy</button>
-              <button onClick={downloadStory} className="px-3 py-1.5 rounded-lg border bg-white hover:bg-slate-50">Download</button>
-              <button onClick={() => setOpen(false)} className="px-3 py-1.5 rounded-lg border bg-white hover:bg-slate-50">Close</button>
+              {/* Speaker button for inline story */}
+              <SpeakButton text={story} ariaLabel="Listen to generated story" />
             </div>
-          </div>
 
-          <div className="relative flex-1 overflow-auto border rounded-xl p-4 bg-slate-50 whitespace-pre-wrap leading-7">
-            {story}
-            {/* Speaker in fullscreen too */}
-            <SpeakButton text={story} ariaLabel="Listen to generated story" />
-          </div>
-        </div>
-      </div>
-    )}
-  </div>
-)}
+            {/* Actions */}
+            <div className="mt-2 flex flex-wrap gap-2">
+              <button
+                onClick={() => setOpen(true)}
+                className="px-3 py-1.5 rounded-lg border shadow-soft bg-white hover:bg-slate-50"
+              >
+                Open Fullscreen
+              </button>
+              <button
+                onClick={copyStory}
+                className="px-3 py-1.5 rounded-lg border shadow-soft bg-white hover:bg-slate-50"
+              >
+                Copy
+              </button>
+              <button
+                onClick={downloadStory}
+                className="px-3 py-1.5 rounded-lg border shadow-soft bg-white hover:bg-slate-50"
+              >
+                Download .txt
+              </button>
+            </div>
 
+            {/* Fullscreen modal */}
+            {open && (
+              <div
+                className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="story-title"
+                onClick={e => {
+                  if (e.target === e.currentTarget) setOpen(false); // click backdrop to close
+                }}
+              >
+                <div className="m-auto w-[min(900px,95vw)] h-[80vh] rounded-2xl bg-white p-4 shadow-soft flex flex-col">
+                  <div className="flex items-center justify-between gap-3 mb-2">
+                    <h3 id="story-title" className="text-lg font-semibold">
+                      Generated Story
+                    </h3>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={copyStory}
+                        className="px-3 py-1.5 rounded-lg border bg-white hover:bg-slate-50"
+                      >
+                        Copy
+                      </button>
+                      <button
+                        onClick={downloadStory}
+                        className="px-3 py-1.5 rounded-lg border bg-white hover:bg-slate-50"
+                      >
+                        Download
+                      </button>
+                      <button
+                        onClick={() => setOpen(false)}
+                        className="px-3 py-1.5 rounded-lg border bg-white hover:bg-slate-50"
+                      >
+                        Close
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="relative flex-1 overflow-auto border rounded-xl p-4 bg-slate-50 whitespace-pre-wrap leading-7 overscroll-contain">
+                    {story}
+                    {/* Speaker in fullscreen too */}
+                    <SpeakButton text={story} ariaLabel="Listen to generated story" />
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
       </Card>
     </div>
   );
@@ -284,5 +309,3 @@ function ChatPanel() {
   );
 }
 export default { Left, Right };
-
-
