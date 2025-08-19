@@ -309,30 +309,28 @@ export function Left() {
           </div>
         </div>
 
-        <div className="mt-4 flex items-center gap-2">
-          <button
-            onClick={saveLessonPlan}
-            className="px-4 py-2 rounded-xl bg-slate-900 text-white hover:bg-slate-800"
-          >
-            Generate Quick Notes
-          </button>
+<div className="mt-4 flex items-center gap-3">
+  {/* Pastel green */}
+  <button
+    onClick={saveLessonPlan}
+    className="px-4 py-2 rounded-xl bg-pastelGreen text-slate-900 border border-slate-200 shadow-soft
+               hover:bg-pastelGreen/90 focus:outline-none focus:ring-2 focus:ring-slate-300
+               active:translate-y-[1px] transition disabled:opacity-60 disabled:cursor-not-allowed"
+  >
+    Generate Quick Notes
+  </button>
 
-          <button
-            onClick={prepareLecturePlan}
-            className="px-4 py-2 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 disabled:opacity-50"
-            disabled={!canPrepare}
-            title={canPrepare ? "" : "Select Subject, Class and Topic to prepare a plan"}
-          >
-            Prepare Lecture Plan
-          </button>
+  {/* Pastel yellow */}
+  <button
+    // add your onClick if this should do something
+    className="px-4 py-2 rounded-xl bg-pastelYellow text-slate-900 border border-slate-200 shadow-soft
+               hover:bg-pastelYellow/90 focus:outline-none focus:ring-2 focus:ring-slate-300
+               active:translate-y-[1px] transition disabled:opacity-60 disabled:cursor-not-allowed"
+  >
+    Prepare Lecture Plan
+  </button>
+</div>
 
-          {selected && (
-            <div className="text-xs text-slate-600">
-              Saving for <span className="font-medium">{dateISO}</span>, Period{" "}
-              {selected.period ?? selectedRow! + 1}
-            </div>
-          )}
-        </div>
 
         {/* Teaching notes */}
         {inputs.subject && effectiveTopic && (
@@ -422,24 +420,28 @@ export function Right() {
   return (
     <div className="space-y-4">
       {/* Tabs */}
-      <div className="flex items-center gap-2">
-        <button
-          className={`px-3 py-1.5 rounded-lg border ${
-            rightTab === "engagement" ? "bg-slate-900 text-white" : "bg-white"
-          }`}
-          onClick={() => setRightTab("engagement")}
-        >
-          Engagement
-        </button>
-        <button
-          className={`px-3 py-1.5 rounded-lg border ${
-            rightTab === "plan" ? "bg-slate-900 text-white" : "bg-white"
-          }`}
-          onClick={() => setRightTab("plan")}
-        >
-          Lecture Plan
-        </button>
-      </div>
+      {/* Tabs */}
+<div className="inline-flex rounded-xl border border-slate-200 bg-white p-1 shadow-soft">
+<button
+  className={`px-3 py-1.5 rounded-lg transition font-medium
+    ${rightTab === "engagement"
+      ? "bg-pastelGreen text-slate-900 shadow-soft ring-1 ring-slate-300"
+      : "text-slate-700 hover:bg-emerald-50"}`
+  }
+  onClick={() => setRightTab("engagement")}
+>
+  Engagement
+</button>
+  <button
+    className={`px-3 py-1.5 rounded-lg transition ${
+      rightTab === "plan" ? "bg-slate-900 text-white shadow" : "text-slate-700 hover:bg-slate-50"
+    }`}
+    onClick={() => setRightTab("plan")}
+  >
+    Lecture Plan
+  </button>
+</div>
+
 
       {rightTab === "engagement" ? (
         <>
@@ -494,26 +496,27 @@ export function Right() {
             </div>
           </Card>
 
-          <Card title="Engagement by Roll Number">
-            <div className="overflow-x-auto">
-              <table className="min-w-full text-sm border">
-                <thead>
-                  <tr>
-                    <th className="border px-2 py-1">Roll No</th>
-                    <th className="border px-2 py-1">Progress (%)</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {engagement.map((s: any) => (
-                    <tr key={s.name}>
-                      <td className="border px-2 py-1">{s.name}</td>
-                      <td className="border px-2 py-1">{s.progress}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </Card>
+         <Card title="Engagement by Roll Number">
+  <div className="space-y-2 max-h-96 overflow-auto pr-2">
+    {engagement.map((s: any, i: number) => (
+      <div key={s.name || i} className="rounded-xl border border-slate-200 bg-white p-2.5 shadow-soft">
+        <div className="flex items-center justify-between mb-1">
+          <span className="text-sm font-medium">
+            {s.rollNo ? `Student ${s.rollNo}` : s.name}
+          </span>
+          <span className="text-sm text-slate-600">{s.progress}%</span>
+        </div>
+        <div className="h-2 w-full rounded-full bg-slate-100 overflow-hidden">
+          <div
+  className="h-2 rounded-full bg-emerald-600"
+  style={{ width: `${Math.max(0, Math.min(100, s.progress ?? 0))}%` }}
+/>
+        </div>
+      </div>
+    ))}
+  </div>
+</Card>
+
         </>
       ) : (
         <>
