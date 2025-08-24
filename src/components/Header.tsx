@@ -91,23 +91,34 @@ function MedalBadgeSideTag({
 }
 
 export default function Header() {
-  const user = useAppStore((s) => s.user);
+  const user = useAppStore(s => s.user);
   const location = useLocation();
 
-  // show badges only on /student pages (handles /student, /student/..., etc.)
-  const showBadges = location.pathname === "/" || location.pathname.startsWith("/student");
-
+  // decide which name to show
+  let displayName = "User";
+  if (location.pathname === "/" || location.pathname.startsWith("/student")) {
+    displayName = user?.studentName || "Student";
+  } else if (location.pathname.startsWith("/teacher")) {
+    displayName = user?.teacherName || "Teacher";
+  } else if (location.pathname.startsWith("/parent")) {
+    displayName = user?.parentName || "Parent";
+  } else if (location.pathname.startsWith("/administration")) {
+    displayName = user?.adminName || "Admin";
+  }
 
   const initials =
-    user?.name
+    displayName
       ?.split(" ")
-      .map((p) => p[0])
+      .map(p => p[0])
       .slice(0, 2)
       .join("")
       .toUpperCase() || "U";
 
+  // show badges only on /student pages (handles /student, /student/..., etc.)
+  const showBadges = location.pathname === "/" || location.pathname.startsWith("/student");
+
   return (
-    <header className="sticky top-0 z-50">
+    <header className="fixed w-full p-3 bg-pastelYellow top-0 z-50">
       {/* Top bar */}
       <div className="backdrop-blur bg-white/80 border-b border-slate-200 shadow-[0_1px_0_0_rgba(15,23,42,0.04)]">
         <div className="mx-auto max-w-[1400px] px-4">
@@ -181,8 +192,9 @@ export default function Header() {
                     {initials}
                   </span>
                   <span className="hidden md:inline text-sm font-medium max-w-[140px] truncate">
-                    {user?.name}
+                    {displayName}
                   </span>
+
                   <ChevronDownIcon className="h-4 w-4 text-slate-500" />
                 </Menu.Button>
 
@@ -210,23 +222,31 @@ export default function Header() {
                           </div>
                         )}
                         <div>
-                          <div className="font-semibold text-sm text-slate-800">
-                            {user?.name}
+                          <div className="font-semibold text-sm text-slate-800">{displayName}</div>
+                          <div className="text-xs text-slate-500">
+                            {location.pathname.startsWith("/teacher")
+                              ? "Teacher"
+                              : location.pathname.startsWith("/parent")
+                              ? "Parent"
+                              : location.pathname.startsWith("/administration")
+                              ? "Admin"
+                              : "Student"}
                           </div>
-                          <div className="text-xs text-slate-500">Student</div>
                         </div>
                       </div>
 
-                      <div className="mt-3 rounded-xl bg-slate-50 border border-slate-200 p-2 text-sm space-y-1">
-                        <div className="flex items-center justify-between">
-                          <span className="text-slate-600">Section</span>
-                          <span className="font-medium">{user?.section}</span>
+                      {(location.pathname === "/" || location.pathname.startsWith("/student")) && (
+                        <div className="mt-3 rounded-xl bg-slate-50 border border-slate-200 p-2 text-sm space-y-1">
+                          <div className="flex items-center justify-between">
+                            <span className="text-slate-600">Section</span>
+                            <span className="font-medium">{user?.section}</span>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="text-slate-600">Class</span>
+                            <span className="font-medium">{user?.className}</span>
+                          </div>
                         </div>
-                        <div className="flex items-center justify-between">
-                          <span className="text-slate-600">Class</span>
-                          <span className="font-medium">{user?.className}</span>
-                        </div>
-                      </div>
+                      )}
 
                       <div className="mt-3 grid gap-2 text-sm">
                         <Menu.Item>
@@ -274,38 +294,38 @@ export default function Header() {
         {/* Accent strip */}
         {/* Accent strip (single row: personas + Achievements) */}
         {showBadges && (
-        <div className="bg-gradient-to-r from-emerald-50 via-amber-50 to-sky-50 border-t border-slate-200/70">
-          <div className="mx-auto max-w-[1400px] px-4">
-            <div
-              className="
+          <div className="bg-gradient-to-r from-emerald-50 via-amber-50 to-sky-50 border-t border-slate-200/70">
+            <div className="mx-auto max-w-[1400px] px-4">
+              <div
+                className="
                 flex items-center gap-2 py-2
                 overflow-x-auto whitespace-nowrap
                 [scrollbar-width:none] [-ms-overflow-style:none]
               "
-              style={{ scrollbarWidth: "none" }}
-            >
-              {/* Personas */}
-              {PERSONA_TAGS.map(tag => (
-                <button
-                  key={tag.label}
-                  className="
+                style={{ scrollbarWidth: "none" }}
+              >
+                {/* Personas */}
+                {PERSONA_TAGS.map(tag => (
+                  <button
+                    key={tag.label}
+                    className="
                     shrink-0 inline-flex h-9 items-center gap-2
                     rounded-full border border-slate-200 bg-white
                     px-3 text-xs font-medium text-slate-700
                     shadow-sm hover:bg-slate-50
                   "
-                  title={tag.label}
-                >
-                  <span className="text-base leading-none">{tag.emoji}</span>
-                  {tag.label}
-                </button>
-              ))}
+                    title={tag.label}
+                  >
+                    <span className="text-base leading-none">{tag.emoji}</span>
+                    {tag.label}
+                  </button>
+                ))}
 
-              {/* Divider dot */}
-              <span className="mx-1 h-1 w-1 rounded-full bg-slate-300/60 shrink-0" />
+                {/* Divider dot */}
+                <span className="mx-1 h-1 w-1 rounded-full bg-slate-300/60 shrink-0" />
 
-              {/* Achievements label (inline, not a chip) */}
-              {/* <span className="shrink-0 inline-flex items-center gap-1.5 text-[12px] font-semibold text-slate-700 tracking-wide">
+                {/* Achievements label (inline, not a chip) */}
+                {/* <span className="shrink-0 inline-flex items-center gap-1.5 text-[12px] font-semibold text-slate-700 tracking-wide">
                 <svg className="h-4 w-4 text-amber-500" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                   <path d="M8 21h8M12 17l-3 4h6l-3-4Zm7-13h2v4a3 3 0 0 1-3 3h-1l-2 2-2-2H8a3 3 0 0 1-3-3V4h2"
                         stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
@@ -313,46 +333,47 @@ export default function Header() {
                 Achievements
               </span> */}
 
-              {/* Achievements badges (same height as persona chips) */}
-              {/* 🎯 Aarcher · Accuracy */}
-              <span
-                className="
+                {/* Achievements badges (same height as persona chips) */}
+                {/* 🎯 Aarcher · Accuracy */}
+                <span
+                  className="
                   shrink-0 inline-flex h-9 items-center gap-2
                   rounded-full border border-slate-200 bg-white
                   px-3 text-xs font-semibold text-slate-700
                   shadow-sm hover:bg-slate-50
                 "
-                title="Archer – Accuracy"
-              >
-                <span className="text-base leading-none">🎯</span>
-                Archer · <span className="font-medium text-slate-600">Accuracy</span>
-              </span>
+                  title="Archer – Accuracy"
+                >
+                  <span className="text-base leading-none">🎯</span>
+                  Archer · <span className="font-medium text-slate-600">Accuracy</span>
+                </span>
 
-              {/* 🏅 Marathon Runner · Consistency (medal + side tag but single height) */}
-              <span
-                className="
+                {/* 🏅 Marathon Runner · Consistency (medal + side tag but single height) */}
+                <span
+                  className="
                   shrink-0 inline-flex h-9 items-center overflow-hidden
                   rounded-full border border-slate-200 bg-white shadow-sm
                 "
-                title="Marathon Runner – Consistency"
-              >
-                <span
-                  className="
+                  title="Marathon Runner – Consistency"
+                >
+                  <span
+                    className="
                     h-9 w-9 grid place-items-center
                     bg-gradient-to-br from-amber-300 via-yellow-200 to-amber-100
                     ring-1 ring-amber-300 text-base
                   "
-                >
-                  🏅
+                  >
+                    🏅
+                  </span>
+                  <span className="px-3 text-xs font-semibold text-slate-700">
+                    Marathon Runner ·{" "}
+                    <span className="font-medium text-slate-600">Consistency</span>
+                  </span>
                 </span>
-                <span className="px-3 text-xs font-semibold text-slate-700">
-                  Marathon Runner · <span className="font-medium text-slate-600">Consistency</span>
-                </span>
-              </span>
+              </div>
             </div>
           </div>
-        </div>)}
-
+        )}
       </div>
     </header>
   );

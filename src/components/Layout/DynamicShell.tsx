@@ -11,9 +11,8 @@ export default function DynamicShell({
 }) {
   const user = useAppStore(state => state.user);
   return (
-// was: max-w-[1280px]
-<div className="notebook grid grid-cols-1 md:grid-cols-10 gap-3 md:gap-4 max-w-[1400px] mx-auto">
-
+    // was: max-w-[1280px]
+    <div className="notebook grid grid-cols-1 md:grid-cols-10 gap-3 md:gap-4 max-w-[1280px] mx-auto">
       {user?.name && (
         <div className="flex gap-4 items-center col-span-10">
           <h1 className="text-2xl">Hi, {user.name}</h1>
