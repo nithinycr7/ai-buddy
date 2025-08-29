@@ -16,6 +16,23 @@ export type ClassItem = {
   progress: number;
 };
 
+type LecturePlan = {
+  meta: {
+    subject: string;
+    className: string;
+    section?: string;
+    topic: string;
+    durationMins: number;
+  };
+  objectives: string[];
+  hook: string;
+  activities: Array<{ title: string; minutes?: number; materials?: string }>;
+  differentiation: string[];
+  checksForUnderstanding: string[];
+  materials: string[];
+  timing: Array<{ block: string; minutes: number }>;
+};
+
 export type Exam = {
   id: string;
   subject: string;
@@ -46,6 +63,14 @@ export type Grievance = {
   notifyTeacherId: string;
   notifyParentId: string;
   status: "open" | "acknowledged" | "resolved";
+};
+
+type GenerateLecturePlanArgs = {
+  subject: string;
+  topic: string;
+  className: string;
+  section?: string;
+  durationMins?: number; // default 45
 };
 
 export type Assignment = {
@@ -231,6 +256,12 @@ export type AppState = {
   // Mock data (classes + assignments)
   _classes: ClassItem[];
   _assignments: Assignment[];
+
+  // Add these for Teacher Dashboard UI state
+  rightTab?: string;
+  setRightTab?: (tab: string) => void;
+  lecturePlan?: any;
+  setLecturePlan?: (plan: any) => void;
 };
 /* =========================
    Helpers (deterministic)
@@ -813,6 +844,140 @@ export const useAppStore = create<AppState>((set, get) => ({
       });
     }
     return students;
+  },
+  setLecturePlan: (p: LecturePlan | null) => set({ lecturePlan: p }),
+  setRightTab: tab => set({ rightTab: tab }),
+
+  // Builds a mock Lecture Plan for any subject/topic (simple heuristics)
+  generateLecturePlan: (args: GenerateLecturePlanArgs): LecturePlan => {
+    const { subject, topic, className, section, durationMins = 45 } = args;
+
+    // helpers for subject-specific flavor
+    const s = subject.toLowerCase();
+    const isMath = /math/.test(s);
+    const isSci = /sci|physics|chem|bio/.test(s);
+    const isEng = /eng|english|lang|grammar/.test(s);
+
+    const objectives = isMath
+      ? [
+          `Understand the concept of ${topic} with real-world examples`,
+          `Solve at least 6 practice problems involving ${topic}`,
+          `Explain the steps and common mistakes in ${topic}`,
+        ]
+      : isSci
+      ? [
+          `Describe the process/phenomenon of ${topic} in simple terms`,
+          `Relate ${topic} to everyday observations/experiments`,
+          `Draw and label a neat diagram (if applicable) for ${topic}`,
+        ]
+      : isEng
+      ? [
+          `Identify and use ${topic} correctly in sentences`,
+          `Differentiate between common confusions related to ${topic}`,
+          `Apply ${topic} in a short writing exercise`,
+        ]
+      : [
+          `Define key terms related to ${topic}`,
+          `Apply ${topic} through guided practice`,
+          `Reflect on learning with a short exit check`,
+        ];
+
+    const hook = isSci
+      ? `2‑minute demo or image prompt connected to ${topic} (curiosity spark).`
+      : isMath
+      ? `Quick puzzle/riddle that needs ${topic} to unlock.`
+      : isEng
+      ? `Short, funny paragraph with deliberate ${topic} errors to spot.`
+      : `Relatable question/story that tees up ${topic}.`;
+
+    // Spread time sensibly across blocks
+    const tHook = Math.min(5, Math.max(3, Math.round(durationMins * 0.1)));
+    const tTeach = Math.min(15, Math.max(10, Math.round(durationMins * 0.35)));
+    const tGuided = Math.min(12, Math.max(8, Math.round(durationMins * 0.27)));
+    const tInd = Math.max(5, Math.round(durationMins * 0.18));
+    const tExit = Math.max(3, durationMins - (tHook + tTeach + tGuided + tInd));
+
+    const activities: Array<{ title: string; minutes?: number; materials?: string }> = [
+      { title: `Hook: Connect to ${topic}`, minutes: tHook, materials: "Image/video/" },
+      {
+        title: `Teach: Mini‑lesson on ${topic}`,
+        minutes: tTeach,
+        materials: isSci ? "Diagram/model" : isMath ? "Board/worksheet" : "Slides/examples",
+      },
+      {
+        title: "Guided practice (pairs/small groups)",
+        minutes: tGuided,
+        materials: isEng ? "Sentence strips / worksheet" : "Worksheet / manipulatives",
+      },
+      {
+        title: "Independent practice",
+        minutes: tInd,
+        materials: "Notebook / worksheet",
+      },
+      {
+        title: "Exit check",
+        minutes: tExit,
+        materials: "Quick 3‑question slip / oral check",
+      },
+    ];
+
+    const differentiation = [
+      "Tiered questions: basic → stretch",
+      "Think‑alouds and worked examples for support",
+      "Challenge: extend to ‘what if’ or a real‑life application",
+      "Peer support: pair high–medium, medium–emerging learners",
+    ];
+
+    const checksForUnderstanding = isMath
+      ? [
+          "Cold‑call a worked step: why this operation?",
+          "Mini‑whiteboard show: answer #2 now",
+          "Exit slip: 2 MCQs + 1 short step justification",
+        ]
+      : isSci
+      ? [
+          "Thumbs 0‑1‑2 on each sub‑process",
+          "Label the diagram (2 key parts) quickly",
+          "Exit slip: sequence the steps / cause→effect",
+        ]
+      : isEng
+      ? [
+          "Spot‑the‑error quickfire",
+          "One sentence rewrite using the rule",
+          "Exit slip: identify/apply ${topic} in context",
+        ]
+      : [
+          "Quick poll every 5 min",
+          "1‑minute pair share summary",
+          "Exit slip: one key learning + one doubt",
+        ];
+
+    const materials = isSci
+      ? ["Chart/diagram", "Video clip", "Lab props (demo)", "Worksheet"]
+      : isMath
+      ? ["Board/markers", "Practice sheet", "Number line/manipulatives", "Projector"]
+      : isEng
+      ? ["Short text/snippets", "Sentence strips", "Slides", "Notebook"]
+      : ["Slides", "Worksheet", "Notebook", "Projector"];
+
+    const timing = [
+      { block: "Hook / Connect", minutes: tHook },
+      { block: "Teach / Model", minutes: tTeach },
+      { block: "Guided Practice", minutes: tGuided },
+      { block: "Independent Practice", minutes: tInd },
+      { block: "Exit Check", minutes: tExit },
+    ];
+
+    return {
+      meta: { subject, className, section, topic, durationMins },
+      objectives,
+      hook,
+      activities,
+      differentiation,
+      checksForUnderstanding,
+      materials,
+      timing,
+    };
   },
 
   // ------- Personality: Communication -------
