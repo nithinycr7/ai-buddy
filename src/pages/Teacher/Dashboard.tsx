@@ -34,6 +34,8 @@ export function Left() {
   const todayISO = new Date().toISOString().slice(0, 10);
   const [dateISO, setDateISO] = useState<string>(todayISO);
   const [selectedRow, setSelectedRow] = useState<number | null>(null);
+  const [showPlanModal, setShowPlanModal] = useState(false);
+const [previewPlan, setPreviewPlan] = useState<LecturePlan | null>(null);
 
   const {
     // timetable
@@ -46,6 +48,7 @@ export function Left() {
     topicsBySubject,
     // notes
     getTeachingNotes,
+    generateLecturePlan,
     // write
     upsertLessonPlan,
     // 🔑 UI state in store for cross-column comms
@@ -59,6 +62,7 @@ export function Left() {
     sections: s.sections,
     topicsBySubject: s.topicsBySubject,
     getTeachingNotes: s.getTeachingNotes,
+    generateLecturePlan: s.generateLecturePlan,
     upsertLessonPlan: s.upsertLessonPlan,
     setRightTab: s.setRightTab ?? (() => {}),
     setLecturePlan: s.setLecturePlan ?? (() => {}),
@@ -128,54 +132,33 @@ export function Left() {
 
   function prepareLecturePlan() {
     if (!inputs.subject || !effectiveTopic || !inputs.className) return;
-
-    const plan: LecturePlan = {
-      meta: {
-        subject: inputs.subject,
-        className: inputs.className,
-        section: inputs.section,
-        topic: effectiveTopic,
-        durationMins: 40,
-      },
-      objectives: [
-        "Define key terms and symbols.",
-        "Explain relationships between core ideas.",
-        "Apply the concept to two real‑world examples.",
-      ],
-      hook:
-        "Open with a 60–90s demo/visual or quick thought experiment to spark curiosity.",
-      activities: [
-        { title: "Think–Pair–Share", minutes: 8, materials: "Notebook" },
-        {
-          title: "Guided Example + Error Analysis",
-          minutes: 10,
-          materials: "Projector/board",
-        },
-        { title: "Mini Whiteboard Check", minutes: 6, materials: "Markers" },
-        { title: "Independent Practice (2–3 Qs)", minutes: 8 },
-      ],
-      differentiation: [
-        "Scaffolded version of main problem for support.",
-        "Extension challenge for fast finishers.",
-      ],
-      checksForUnderstanding: [
-        "Cold‑call 3–4 students on the core concept.",
-        "2‑question exit ticket on the likely misconception.",
-      ],
-      materials: ["Projector", "Worksheets", "Markers"],
-      timing: [
-        { block: "Hook", minutes: 4 },
-        { block: "Core Teaching", minutes: 15 },
-        { block: "Guided Practice", minutes: 12 },
-        { block: "Exit Ticket", minutes: 9 },
-      ],
-    };
-
-    // send to right column via store
-    setLecturePlan(plan);
-    setRightTab?.("plan");
+    
   }
 
+
+  function handleGenerateLecturePlan() {
+    if (!canPrepare || typeof generateLecturePlan !== "function") return;
+    const plan = generateLecturePlan({
+      subject: inputs.subject,
+      className: inputs.className,
+      section: inputs.section,
+      topic: effectiveTopic,
+    });
+    console.log("Generated Lecture Plan:", plan);
+    if (plan) {
+      setLecturePlan(plan);
+      setRightTab("plan");
+    }
+
+    setTimeout(() => {
+    // Zustand lets you read current state like this:
+    const now = (useAppStore as any).getState?.().rightTab;
+    if (now !== "plan") {
+      setPreviewPlan(plan);
+      setShowPlanModal(true);
+    }
+  }, 60);
+  }
   const canPrepare =
     Boolean(inputs.subject) && Boolean(effectiveTopic) && Boolean(inputs.className);
 
@@ -309,27 +292,28 @@ export function Left() {
           </div>
         </div>
 
-<div className="mt-4 flex items-center gap-3">
-  {/* Pastel green */}
-  <button
-    onClick={saveLessonPlan}
-    className="px-4 py-2 rounded-xl bg-pastelGreen text-slate-900 border border-slate-200 shadow-soft
-               hover:bg-pastelGreen/90 focus:outline-none focus:ring-2 focus:ring-slate-300
-               active:translate-y-[1px] transition disabled:opacity-60 disabled:cursor-not-allowed"
-  >
-    Generate Quick Notes
-  </button>
+            <div className="mt-4 flex items-center gap-3">
+              {/* Pastel green */}
+              <button
+                onClick={saveLessonPlan}
+                className="px-4 py-2 rounded-xl bg-pastelGreen text-slate-900 border border-slate-200 shadow-soft
+                          hover:bg-pastelGreen/90 focus:outline-none focus:ring-2 focus:ring-slate-300
+                          active:translate-y-[1px] transition disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                Generate Quick Notes
+              </button>
 
-  {/* Pastel yellow */}
-  <button
-    // add your onClick if this should do something
-    className="px-4 py-2 rounded-xl bg-pastelYellow text-slate-900 border border-slate-200 shadow-soft
-               hover:bg-pastelYellow/90 focus:outline-none focus:ring-2 focus:ring-slate-300
-               active:translate-y-[1px] transition disabled:opacity-60 disabled:cursor-not-allowed"
-  >
-    Prepare Lecture Plan
-  </button>
-</div>
+              {/* Pastel yellow */}
+              <button
+                // add your onClick if this should do something
+                  onClick={handleGenerateLecturePlan}
+                className="px-4 py-2 rounded-xl bg-pastelYellow text-slate-900 border border-slate-200 shadow-soft
+                          hover:bg-pastelYellow/90 focus:outline-none focus:ring-2 focus:ring-slate-300
+                          active:translate-y-[1px] transition disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                Prepare Lecture Plan
+              </button>
+            </div>
 
 
         {/* Teaching notes */}
@@ -384,6 +368,102 @@ export function Left() {
           </Card>
         )}
       </Card>
+      {showPlanModal && previewPlan && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+    <div className="w-full max-w-3xl rounded-2xl bg-white shadow-soft p-4 md:p-6">
+      <div className="flex items-center justify-between mb-3">
+        <h3 className="text-lg font-semibold">
+          {previewPlan.meta.subject} — {previewPlan.meta.topic} (Class {previewPlan.meta.className}
+          {previewPlan.meta.section ? `-${previewPlan.meta.section}` : ""})
+        </h3>
+        <button
+          onClick={() => setShowPlanModal(false)}
+          className="text-sm px-3 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50"
+        >
+          Close
+        </button>
+      </div>
+
+      <div className="text-sm text-slate-600 mb-3">
+        Duration: {previewPlan.meta.durationMins} mins
+      </div>
+
+      <div className="grid md:grid-cols-2 gap-3 max-h-[60vh] overflow-auto pr-1">
+        <section className="rounded-xl border p-3">
+          <h4 className="font-medium mb-1">Objectives</h4>
+          <ul className="list-disc pl-5 text-sm leading-6">
+            {previewPlan.objectives.map((o, i) => <li key={i}>{o}</li>)}
+          </ul>
+        </section>
+
+        <section className="rounded-xl border p-3">
+          <h4 className="font-medium mb-1">Hook</h4>
+          <p className="text-sm leading-6">{previewPlan.hook}</p>
+        </section>
+
+        <section className="rounded-xl border p-3 md:col-span-2">
+          <h4 className="font-medium mb-1">Activities</h4>
+          <ul className="list-disc pl-5 text-sm leading-6">
+            {previewPlan.activities.map((a, i) => (
+              <li key={i}>
+                <span className="font-medium">{a.title}</span>
+                {a.minutes ? ` — ${a.minutes} mins` : ""}
+                {a.materials ? ` — ${a.materials}` : ""}
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        <section className="rounded-xl border p-3">
+          <h4 className="font-medium mb-1">Differentiation</h4>
+          <ul className="list-disc pl-5 text-sm leading-6">
+            {previewPlan.differentiation.map((d, i) => <li key={i}>{d}</li>)}
+          </ul>
+        </section>
+
+        <section className="rounded-xl border p-3">
+          <h4 className="font-medium mb-1">Checks for Understanding</h4>
+          <ul className="list-disc pl-5 text-sm leading-6">
+            {previewPlan.checksForUnderstanding.map((c, i) => <li key={i}>{c}</li>)}
+          </ul>
+        </section>
+
+        <section className="rounded-xl border p-3 md:col-span-2">
+          <h4 className="font-medium mb-1">Materials</h4>
+          <p className="text-sm leading-6">{previewPlan.materials.join(", ")}</p>
+        </section>
+
+        <section className="rounded-xl border p-3 md:col-span-2">
+          <h4 className="font-medium mb-1">Timing</h4>
+          <ul className="list-disc pl-5 text-sm leading-6">
+            {previewPlan.timing.map((t, i) => (
+              <li key={i}>{t.block}: {t.minutes} mins</li>
+            ))}
+          </ul>
+        </section>
+      </div>
+
+      <div className="mt-4 flex items-center justify-end gap-2">
+        <button
+          onClick={() => {
+            setShowPlanModal(false);
+            setRightTab?.("plan");
+          }}
+          className="px-4 py-2 rounded-xl bg-slate-900 text-white hover:bg-slate-800"
+        >
+          Open in right panel
+        </button>
+        <button
+          onClick={() => setShowPlanModal(false)}
+          className="px-4 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50"
+        >
+          Keep it here
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
     </div>
   );
 }
