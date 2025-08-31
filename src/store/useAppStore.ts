@@ -648,9 +648,9 @@ export const useAppStore = create<AppState>((set, get) => ({
       id: "bio-digestive",
       icon: "🍽️",
       title: "Biology",
-      topic: "Human Digestive System",
+      topic: "Photosynthesis",
       progress: 0.2,
-      summary: "Organs, enzymes and the journey of food through the digestive tract.",
+      summary: "Photosynthesis: light reactions, Calvin cycle and factors affecting rate.",
     },
 
     // Math topics

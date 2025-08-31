@@ -252,6 +252,12 @@ function Right() {
     </div>
   );
 }
+function toApiMessages(uiMsgs: { role: "user" | "ai"; text: string }[]) {
+  return uiMsgs.map(m => ({
+    role: m.role === "ai" ? "assistant" : "user",
+    content: m.text,
+  }));
+}
 
 /** Non-sticky chatbot panel (self-contained) */
 function ChatPanel() {
@@ -260,19 +266,51 @@ function ChatPanel() {
   ]);
   const [input, setInput] = useState("");
 
-  const send = async () => {
-    const text = input.trim();
-    if (!text) return;
-    setMessages(m => [...m, { role: "user", text }]);
-    setInput("");
-    // Fake AI – replace with your backend
-    setTimeout(() => {
-      setMessages(m => [
-        ...m,
-        { role: "ai", text: "Here’s a quick tip: focus on the key terms and definitions first." },
-      ]);
-    }, 300);
-  };
+  const API_BASE = "https://aibuddy-be-awb3eqfyftc7cbe6.canadacentral-01.azurewebsites.net";
+
+const send = async () => {
+  const text = input.trim();
+  if (!text) return;
+
+  // 1) Optimistically add the user message
+  setMessages(m => [...m, { role: "user", text }]);
+  setInput("");
+
+  try {
+    // 2) Build the payload (stateless: send only the last user turn; or send full history)
+    const payload = {
+      messages: [{ role: "user", content: text }],
+      // Optional: if you later pass the lecture summary down as a prop, include it here:
+      // summary,
+      temperature: 0.2,
+      max_tokens: 300,
+    };
+
+    console.log("Payload:", payload,`${API_BASE}/api/ai/chat`,"hh");
+
+    // 3) Call backend
+    const res = await fetch(`${API_BASE}/api/ai/chat`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    if (!res.ok) {
+      const detail = await res.text().catch(() => "");
+      throw new Error(`HTTP ${res.status} ${res.statusText} ${detail}`);
+    }
+
+    // 4) Append assistant reply
+    const data: { reply: string } = await res.json();
+    setMessages(m => [...m, { role: "ai", text: data.reply || "…" }]);
+  } catch (err: any) {
+    setMessages(m => [
+      ...m,
+      { role: "ai", text: `Sorry, I couldn’t reply right now. (${err?.message || "error"})` },
+    ]);
+  }
+};
+
 
   return (
     <Card>
