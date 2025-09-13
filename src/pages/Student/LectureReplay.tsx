@@ -1,5 +1,8 @@
 import { useRef, useState } from "react";
+import { useMutation } from "@tanstack/react-query";
 import Card from "../../components/UI/Card";
+import type { ApiMessage, ChatRequest, ChatResponse, UiMessage } from "../../types/api";
+import { sendChatMessage } from "../../api/services/chatService";
 
 type Lang = "en" | "hi" | "te";
 
@@ -252,7 +255,7 @@ function Right() {
     </div>
   );
 }
-function toApiMessages(uiMsgs: { role: "user" | "ai"; text: string }[]) {
+function toApiMessages(uiMsgs: UiMessage[]): ApiMessage[] {
   return uiMsgs.map(m => ({
     role: m.role === "ai" ? "assistant" : "user",
     content: m.text,
@@ -261,56 +264,39 @@ function toApiMessages(uiMsgs: { role: "user" | "ai"; text: string }[]) {
 
 /** Non-sticky chatbot panel (self-contained) */
 function ChatPanel() {
-  const [messages, setMessages] = useState<{ role: "user" | "ai"; text: string }[]>([
-    { role: "ai", text: "Hi! Ask me about this lecture and I’ll help." },
+  const [messages, setMessages] = useState<UiMessage[]>([
+    { role: "ai", text: "Hi! Ask me about this lecture and I'll help." },
   ]);
   const [input, setInput] = useState("");
 
-  const API_BASE = "https://aibuddy-be-awb3eqfyftc7cbe6.canadacentral-01.azurewebsites.net";
+  const chatMutation = useMutation({
+    mutationFn: sendChatMessage,
+    onSuccess: (data: ChatResponse) => {
+      setMessages(m => [...m, { role: "ai", text: data.reply || "…" }]);
+    },
+    onError: (error: any) => {
+      setMessages(m => [
+        ...m,
+        { role: "ai", text: `Sorry, I couldn’t reply right now. (${error.message || "error"})` },
+      ]);
+    },
+  });
 
-const send = async () => {
-  const text = input.trim();
-  if (!text) return;
+  const send = async () => {
+    const text = input.trim();
+    if (!text) return;
 
-  // 1) Optimistically add the user message
-  setMessages(m => [...m, { role: "user", text }]);
-  setInput("");
+    setMessages(m => [...m, { role: "user", text }]);
+    setInput("");
 
-  try {
-    // 2) Build the payload (stateless: send only the last user turn; or send full history)
-    const payload = {
+    const payload: ChatRequest = {
       messages: [{ role: "user", content: text }],
-      // Optional: if you later pass the lecture summary down as a prop, include it here:
-      // summary,
       temperature: 0.2,
       max_tokens: 300,
     };
 
-    console.log("Payload:", payload,`${API_BASE}/api/ai/chat`,"hh");
-
-    // 3) Call backend
-    const res = await fetch(`${API_BASE}/api/ai/chat`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-
-    if (!res.ok) {
-      const detail = await res.text().catch(() => "");
-      throw new Error(`HTTP ${res.status} ${res.statusText} ${detail}`);
-    }
-
-    // 4) Append assistant reply
-    const data: { reply: string } = await res.json();
-    setMessages(m => [...m, { role: "ai", text: data.reply || "…" }]);
-  } catch (err: any) {
-    setMessages(m => [
-      ...m,
-      { role: "ai", text: `Sorry, I couldn’t reply right now. (${err?.message || "error"})` },
-    ]);
-  }
-};
-
+    chatMutation.mutate(payload);
+  };
 
   return (
     <Card>
@@ -334,12 +320,14 @@ const send = async () => {
             onKeyDown={e => e.key === "Enter" && send()}
             className="flex-1 border rounded-xl px-3 py-2"
             placeholder="Type your message…"
+            disabled={chatMutation.isPending} // Disable input while sending
           />
           <button
             onClick={send}
             className="px-4 py-2 rounded-xl bg-slate-800 text-white shadow-soft"
+            disabled={chatMutation.isPending} // Disable button while sending
           >
-            Send
+            {chatMutation.isPending ? "Sending..." : "Send"}
           </button>
         </div>
       </div>
