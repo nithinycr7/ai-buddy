@@ -282,6 +282,18 @@ export default function Header() {
                             </button>
                           )}
                         </Menu.Item>
+                        <Menu.Item>
+                          {({ active }) => (
+                            <button
+                              onClick={() => (window.location.href = "/student/profile")}
+                              className={`w-full text-left px-3 py-2 rounded-lg border ${
+                                active ? "bg-slate-50" : "bg-white"
+                              } border-slate-200`}
+                            >
+                              Profile
+                            </button>
+                          )}
+                        </Menu.Item>
                       </div>
                     </div>
                   </Menu.Items>

@@ -32,6 +32,7 @@ import ParentDashboard from "./pages/Parent/Dashboard";
 import WeeklyDigest from "./pages/Parent/WeeklyDigest";
 import DynamicShell from "./components/Layout/DynamicShell";
 import SubjectPage from "./pages/Student/Subject";
+import Profile from "./pages/Student/Profile";
 
 export default function App() {
   return (
@@ -105,6 +106,14 @@ export default function App() {
           <Route path="/student/exam-analysis" element={<ExamAnalysis />} />
 
           <Route path="*" element={<Navigate to="/" replace />} />
+          <Route
+            path="/student/profile"
+            element={
+              <SingleCardShell>
+                <Profile />
+              </SingleCardShell>
+            }
+          />
         </Routes>
       </div>
 
